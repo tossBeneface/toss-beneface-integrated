@@ -1,4 +1,9 @@
 import logging
+import threading
+import grpc
+from concurrent import futures
+import card_benefit_pb2_grpc
+from grpc_server import CardBenefitServicer
 
 import uvicorn
 from dotenv import load_dotenv
@@ -45,8 +50,22 @@ def health():
     return {"status": "ok"}
 
 
+def start_grpc_server():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    card_benefit_pb2_grpc.add_CardBenefitServiceServicer_to_server(
+        CardBenefitServicer(), server
+    )
+    server.add_insecure_port('[::]:50051')
+    logger.info("gRPC server starting on port 50051 (integrated with FastAPI)...")
+    server.start()
+    return server
+
+
 @app.on_event("startup")
 async def startup_event():
+    # gRPC 서버 통합 기동
+    app.state.grpc_server = start_grpc_server()
+
     try:
         load_faces_from_api()
     except Exception:
@@ -60,6 +79,9 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    if hasattr(app.state, "grpc_server"):
+        logger.info("Stopping gRPC server...")
+        app.state.grpc_server.stop(0)
     await voice_kafka_pipeline.stop()
 
 

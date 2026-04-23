@@ -4,7 +4,7 @@ use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct BenefitCandidateInput {
     card_name: String,
     card_company: String,
@@ -28,6 +28,13 @@ struct StoreBatchInput {
     store_name: String,
     amount: i32,
     candidates: Vec<BenefitCandidateInput>,
+}
+
+#[derive(Deserialize)]
+struct StoreRequestInput {
+    store_name: String,
+    amount: i32,
+    visit_count: i32,
 }
 
 #[derive(Clone, Serialize)]
@@ -76,6 +83,51 @@ fn analyze_batch_benefits(batch_json: &str) -> PyResult<String> {
         let best = find_best_benefit(&item.candidates, item.amount);
         results.push(StoreBenefitResult {
             store_name: item.store_name,
+            best_card_name: best.best_card_name,
+            total_potential_benefit: best.total_potential_benefit,
+        });
+    }
+
+    let response = BatchBenefitAnalysis { results };
+    serde_json::to_string(&response).map_err(|err| PyRuntimeError::new_err(err.to_string()))
+}
+
+#[pyfunction]
+fn analyze_batch_benefits_from_candidates(stores_json: &str, candidates_json: &str) -> PyResult<String> {
+    let stores: Vec<StoreRequestInput> = serde_json::from_str(stores_json)
+        .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+    let candidates: Vec<BenefitCandidateInput> = serde_json::from_str(candidates_json)
+        .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+
+    let mut candidates_by_shop: HashMap<String, Vec<BenefitCandidateInput>> = HashMap::new();
+    for candidate in candidates {
+        let normalized_shop = normalize_store_name(&candidate.shop);
+        if normalized_shop.is_empty() {
+            continue;
+        }
+        candidates_by_shop
+            .entry(normalized_shop)
+            .or_default()
+            .push(candidate);
+    }
+
+    let mut results = Vec::with_capacity(stores.len());
+    for store in stores {
+        let normalized_store = normalize_store_name(&store.store_name);
+        let mut matched_candidates = Vec::new();
+
+        for (shop, shop_candidates) in &candidates_by_shop {
+            if store_matches(&normalized_store, shop) {
+                matched_candidates.extend(shop_candidates.iter().cloned().map(|mut candidate| {
+                    candidate.visit_count = store.visit_count;
+                    candidate
+                }));
+            }
+        }
+
+        let best = find_best_benefit(&matched_candidates, store.amount);
+        results.push(StoreBenefitResult {
+            store_name: store.store_name,
             best_card_name: best.best_card_name,
             total_potential_benefit: best.total_potential_benefit,
         });
@@ -209,9 +261,21 @@ fn evaluate_discount(candidate: &BenefitCandidateInput, amount: i32) -> (i32, St
     (discount_amount, format!("{}{}", base_desc, bonus_msg))
 }
 
+fn normalize_store_name(value: &str) -> String {
+    value.trim().to_lowercase()
+}
+
+fn store_matches(normalized_store: &str, normalized_shop: &str) -> bool {
+    if normalized_store.is_empty() || normalized_shop.is_empty() {
+        return false;
+    }
+    normalized_store.contains(normalized_shop) || normalized_shop.contains(normalized_store)
+}
+
 #[pymodule]
 fn card_benefit_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(analyze_best_benefit, m)?)?;
     m.add_function(wrap_pyfunction!(analyze_batch_benefits, m)?)?;
+    m.add_function(wrap_pyfunction!(analyze_batch_benefits_from_candidates, m)?)?;
     Ok(())
 }

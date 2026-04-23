@@ -124,14 +124,16 @@ def analyze_batch_benefits(member_id: int, stores: list[dict]) -> list[dict]:
         _record_metrics("python_dummy", is_batch, start_time)
         return results
 
-    batch_input = _build_batch_input(member_id, stores, all_candidates)
-
     try:
         rust_module = importlib.import_module("card_benefit_rust")
-        raw_payload = rust_module.analyze_batch_benefits(json.dumps(batch_input, ensure_ascii=False))
+        store_requests = _build_store_requests(member_id, stores)
+        raw_payload = rust_module.analyze_batch_benefits_from_candidates(
+            json.dumps(store_requests, ensure_ascii=False),
+            json.dumps([candidate.to_payload() for candidate in all_candidates], ensure_ascii=False),
+        )
         payload = json.loads(raw_payload)
         logger.info(
-            "Batch benefits served by Rust engine for memberId=%s, storesCount=%s",
+            "Batch benefits served by Rust grouped engine for memberId=%s, storesCount=%s",
             member_id,
             len(stores),
         )
@@ -140,9 +142,21 @@ def analyze_batch_benefits(member_id: int, stores: list[dict]) -> list[dict]:
     except Exception:
         logger.exception("Rust batch engine failed. Falling back to Python batch evaluator.")
 
+    batch_input = _build_batch_input(member_id, stores, all_candidates)
     results = _analyze_batch_benefits_candidates_python(batch_input)
     _record_metrics("python", is_batch, start_time)
     return results
+
+
+def _build_store_requests(member_id: int, stores: list[dict]) -> list[dict]:
+    return [
+        {
+            "store_name": store["store_name"],
+            "amount": store["amount"],
+            "visit_count": _safe_count_monthly_store_visits(member_id, store["store_name"]),
+        }
+        for store in stores
+    ]
 
 
 def _build_batch_input(
