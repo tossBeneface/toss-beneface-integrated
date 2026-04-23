@@ -6,6 +6,7 @@ import com.app.global.filter.LoggingFilter
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -25,7 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val oAuth2SuccessHandler: OAuth2SuccessHandler,
-    private val clientRegistrationRepositoryProvider: ObjectProvider<ClientRegistrationRepository>
+    private val clientRegistrationRepositoryProvider: ObjectProvider<ClientRegistrationRepository>,
+    @Value("\${app.oauth2.redirect-uri:http://localhost:3000}") private val redirectUri: String
 ) {
 
     private val log = LoggerFactory.getLogger(SecurityConfig::class.java)
@@ -47,12 +49,20 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                     .requestMatchers(
+                        // 인증 불필요: 공개 API
                         "/swagger-ui/**", "/v3/api-docs/**",
                         "/api/health", "/api/join", "/api/login", "/api/access-token/issue", "/h2-console/**",
-                        "/api/qnaboard/**", "/api/member/info", "/api/card-benefits", "/api/flow", "/api/payments/**", "/payment/**", "/success/**", "http://localhost:8080/api/v1/payments/toss/fail/**", "http://localhost:8080/api/v1/payments/toss/success/**", "/api/payment/**", "/fail/**", "https://api.tosspayments.com/v1/payments/confirm/**",
-                        "/api/user-data-test/**", "/api/faces/**", "/api/card-benefits/**", "/api/products/**", "/api/member/name/**", "/api/qr/generate", "/api/qr/authenticate", "/api/user-cards/**", "/api/orders/**",
+                        "/api/qnaboard/**", "/api/member/info", "/api/card-benefits", "/api/flow",
+                        "/api/card-benefits/**", "/api/products/**", "/api/member/name/**",
+                        "/api/user-data-test/**", "/api/faces/**",
+                        "/api/qr/generate", "/api/qr/authenticate",
+                        // Toss 결제 리다이렉트 콜백 (브라우저 리다이렉트, 인증 쿠키 없이 도달 가능)
+                        "/api/payment/", "/api/payment/fail", "/api/payment/callback-auth",
+                        // WebSocket / OAuth2
                         "/ws/**", "/oauth2/**", "/login/oauth2/**"
                     ).permitAll()
+                    // 주문·결제·사용자 카드는 인증 필수
+                    .requestMatchers("/api/orders/**", "/api/payment/**", "/api/user-cards/**").authenticated()
                     .anyRequest().authenticated()
             }
             .headers { headers ->
@@ -80,6 +90,10 @@ class SecurityConfig(
                     userInfo.userService(customOAuth2UserService)
                 }
                 oauth2.successHandler(oAuth2SuccessHandler)
+                oauth2.failureHandler { _, response, ex ->
+                    log.warn("OAuth2 login failed: {}", ex.message)
+                    response.sendRedirect("$redirectUri?error=oauth2_failed")
+                }
             }
         }
         return http.build()
