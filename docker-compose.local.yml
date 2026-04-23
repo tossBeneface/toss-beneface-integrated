@@ -1,0 +1,270 @@
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: tossbeneface-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      backend:
+        condition: service_started
+      fastapi:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: tossbeneface-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: toss_beneface
+      POSTGRES_USER: toss_beneface_user
+      POSTGRES_PASSWORD: ai0310
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toss_beneface_user -d toss_beneface"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: tossbeneface-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ─────────────────────────────────────────────────────
+  # Kafka (KRaft 모드 — Zookeeper 없이 단독 실행)
+  # ─────────────────────────────────────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: tossbeneface-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"        # 토픽 자동 생성 비활성화 → init 컨테이너가 명시적으로 생성
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168                  # 7일
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk              # KRaft 클러스터 고정 ID
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ─────────────────────────────────────────────────────
+  # Kafka 토픽 초기화 컨테이너 (1회 실행 후 종료)
+  # ─────────────────────────────────────────────────────
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: tossbeneface-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./kafka/scripts:/scripts
+    entrypoint: ["/bin/bash", "/scripts/init-topics.sh"]
+    restart: "no"
+
+  # ─────────────────────────────────────────────────────
+  # Kafka UI — 토픽 / Consumer Lag 시각화 (8989 포트)
+  # ─────────────────────────────────────────────────────
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: tossbeneface-kafka-ui
+    restart: unless-stopped
+    ports:
+      - "8989:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./TossBeneface
+    container_name: tossbeneface-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      FAST_API_HOST: http://fastapi:8000
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/toss_beneface
+      SPRING_DATASOURCE_USERNAME: toss_beneface_user
+      SPRING_DATASOURCE_PASSWORD: ai0310
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      TOKEN_SECRET: local-token-secret-for-beneface-development-environment-2026-keep-this-over-sixty-four-characters
+      AWS_ACCESS_KEY: local-access-key
+      AWS_SECRET_KEY: local-secret-key
+      TOSS_TEST_CLIENT_API_KEY: test-client-key
+      TOSS_TEST_SECRET_API_KEY: test-secret-key
+      TOSS_SUCCESS_URL: http://localhost/api/payment/success
+      TOSS_FAIL_URL: http://localhost/api/payment/fail
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully  # 토픽 생성 완료 후 백엔드 시작
+
+  fastapi:
+    build:
+      context: ./fastApi
+      dockerfile: dockerfile
+    container_name: tossbeneface-fastapi
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_USER: toss_beneface_user
+      DB_PASSWORD: ai0310
+      DB_NAME: toss_beneface
+      DB_HOST_LOCAL: postgres
+      DB_USER_LOCAL: toss_beneface_user
+      DB_PASSWORD_LOCAL: ai0310
+      DB_NAME_LOCAL: toss_beneface
+      SPRING_API_URL: http://backend:8080
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ─────────────────────────────────────────────────────
+  # Monitoring (Prometheus & Grafana)
+  # ─────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: tossbeneface-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alert.rules:/etc/prometheus/alert.rules
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    depends_on:
+      - alertmanager
+      - backend
+      - fastapi
+      - kafka-exporter
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: tossbeneface-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    environment:
+      ALERTMANAGER_SLACK_WEBHOOK: ${ALERTMANAGER_SLACK_WEBHOOK:-}
+      ALERTMANAGER_SLACK_CHANNEL: ${ALERTMANAGER_SLACK_CHANNEL:-#monitoring-alerts}
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./monitoring/alertmanager:/etc/alertmanager-src
+    entrypoint:
+      - "sh"
+      - "-c"
+      - |
+        if [ -n "$${ALERTMANAGER_SLACK_WEBHOOK}" ]; then \
+          cp /etc/alertmanager-src/alertmanager.yml /etc/alertmanager/alertmanager.generated.yml && \
+          sed -i "s|__SLACK_WEBHOOK_URL__|$${ALERTMANAGER_SLACK_WEBHOOK}|g" /etc/alertmanager/alertmanager.generated.yml && \
+          sed -i "s|__SLACK_CHANNEL__|$${ALERTMANAGER_SLACK_CHANNEL}|g" /etc/alertmanager/alertmanager.generated.yml; \
+        else \
+          cat <<'EOF' >/etc/alertmanager/alertmanager.generated.yml
+        global:
+          resolve_timeout: 5m
+
+        route:
+          receiver: 'null'
+
+        receivers:
+          - name: 'null'
+        EOF
+        fi && \
+        /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.generated.yml
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: tossbeneface-kafka-exporter
+    restart: unless-stopped
+    ports:
+      - "9308:9308"
+    command:
+      - "--kafka.server=kafka:9092"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: tossbeneface-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

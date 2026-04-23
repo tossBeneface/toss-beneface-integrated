@@ -1,0 +1,42 @@
+groups:
+  - name: TossBenefaceAlerts
+    rules:
+      # 1. 서비스 다운 감지
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "인스턴스 다운: {{ $labels.instance }}"
+          description: "{{ $labels.instance }} 서버가 1분 이상 응답하지 않습니다."
+
+      # 2. 고부하 CPU 감지
+      - alert: HighCpuUsage
+        expr: system_cpu_usage > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 CPU 사용량: {{ $labels.instance }}"
+          description: "CPU 사용량이 2분 동안 80%를 초과했습니다. (현재: {{ $value | printf \"%.2f\" }})"
+
+      # 3. API 응답 시간 지연 (95th percentile)
+      - alert: SlowApiResponse
+        expr: http_server_requests_seconds_max > 2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 응답 지연: {{ $labels.uri }}"
+          description: "{{ $labels.uri }} 엔드포인트의 최대 응답 시간이 2초를 초과했습니다."
+
+      # 4. Kafka Consumer Lag 발생
+      - alert: KafkaConsumerLag
+        expr: sum(kafka_consumergroup_group_lag) by (group, topic) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka 컨슈머 랙 발생: {{ $labels.group }}"
+          description: "{{ $labels.topic }} 토픽의 처리 지연이 100건을 넘었습니다."
