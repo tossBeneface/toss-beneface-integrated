@@ -57,7 +57,7 @@ class CardBenefitServiceTest {
 
         // then
         assertEquals(1, result.size)
-        assertEquals("10% 할인", result[0].benefit)
+        assertEquals(10, result[0].benefit)
         assertEquals("image_url", result[0].cardImage)
         verify { cardBenefitRepository.findByCardNameAndCardCompanyFetchCard(cardName, cardCompany) }
     }

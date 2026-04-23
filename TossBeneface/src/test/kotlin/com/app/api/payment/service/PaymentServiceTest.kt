@@ -14,6 +14,7 @@ import com.app.global.kafka.outbox.OutboxRepository
 import com.app.payment.application.dto.ConfirmedPaymentResult
 import com.app.payment.application.port.PaymentStore
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,7 +29,7 @@ class PaymentServiceTest {
     private val paymentStore = mockk<PaymentStore>()
     private val memberRepository = mockk<MemberRepository>()
     private val outboxRepository = mockk<OutboxRepository>(relaxed = true)
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
     private val paymentService = PaymentService(
         paymentStore,
@@ -57,6 +58,7 @@ class PaymentServiceTest {
         
         every { memberRepository.findByIdWithPessimisticLock(memberId) } returns Optional.of(member)
         every { paymentStore.save(any()) } returns payment
+        every { outboxRepository.save(any()) } answers { firstArg() }
 
         // when
         paymentService.savePayment(confirmedPayment)

@@ -14,6 +14,7 @@ import com.app.global.error.exception.BusinessException
 import com.app.global.error.exception.EntityNotFoundException
 import com.app.global.kafka.outbox.OutboxRepository
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -27,7 +28,7 @@ class OrderServiceTest {
     private val orderRepository = mockk<OrderRepository>()
     private val memberRepository = mockk<MemberRepository>()
     private val outboxRepository = mockk<OutboxRepository>(relaxed = true)
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
     private val orderService = OrderService(
         orderRepository,
@@ -54,6 +55,7 @@ class OrderServiceTest {
         
         every { memberRepository.findByIdWithPessimisticLock(memberId) } returns Optional.of(member)
         every { orderRepository.save(any()) } returns orderPayment
+        every { outboxRepository.save(any()) } answers { firstArg() }
 
         // when
         val resultOrderId = orderService.createOrder(request)

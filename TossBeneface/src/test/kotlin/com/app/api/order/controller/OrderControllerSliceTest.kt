@@ -14,24 +14,51 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.FilterType
 import org.springframework.core.MethodParameter
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import com.app.global.config.web.WebConfig
+import com.app.auth.infra.security.JwtTokenProvider
+import com.app.auth.infra.web.BearerTokenResolver
+import com.app.global.interceptor.AdminAuthorizationInterceptor
+import com.app.global.interceptor.AuthenticationInterceptor
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
-@WebMvcTest(OrderController::class)
+@WebMvcTest(
+    controllers = [OrderController::class],
+    excludeFilters = [
+        ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = [WebConfig::class])
+    ]
+)
+@AutoConfigureMockMvc(addFilters = false)
 class OrderControllerSliceTest {
+
+    @MockBean
+    private lateinit var bearerTokenResolver: BearerTokenResolver
+
+    @MockBean
+    private lateinit var jwtTokenProvider: JwtTokenProvider
+
+    @MockBean
+    private lateinit var authenticationInterceptor: AuthenticationInterceptor
+
+    @MockBean
+    private lateinit var adminAuthorizationInterceptor: AdminAuthorizationInterceptor
 
     @Autowired
     private lateinit var mockMvc: MockMvc
