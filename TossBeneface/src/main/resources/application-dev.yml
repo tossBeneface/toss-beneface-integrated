@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 500
+    open-in-view: false
+
+token:
+  secret: ${TOKEN_SECRET}
+
+cookie:
+  encryption:
+    secret: ${COOKIE_ENCRYPTION_SECRET}
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_KEY}
+
+payment:
+  toss:
+    test_client_api_key: ${TOSS_TEST_CLIENT_API_KEY}
+    test_secret_api_key: ${TOSS_TEST_SECRET_API_KEY}
+    success_url: ${TOSS_SUCCESS_URL}
+    fail_url: ${TOSS_FAIL_URL}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>토스페이먼츠 샘플 프로젝트</title>
+</head>
+
+<body>
+<div class="box_section" style="width: 600px">
+  <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+  <h2>결제를 완료했어요</h2>
+
+  <div class="p-grid typography--p" style="margin-top: 50px">
+    <div class="p-grid-col text--left"><b>결제금액</b></div>
+    <div class="p-grid-col text--right" id="amount"></div>
+  </div>
+  <div class="p-grid typography--p" style="margin-top: 10px">
+    <div class="p-grid-col text--left"><b>주문번호</b></div>
+    <div class="p-grid-col text--right" id="orderId"></div>
+  </div>
+  <div class="p-grid typography--p" style="margin-top: 10px">
+    <div class="p-grid-col text--left"><b>paymentKey</b></div>
+    <div class="p-grid-col text--right" id="paymentKey" style="white-space: initial; width: 250px"></div>
+  </div>
+  <div class="p-grid" style="margin-top: 30px">
+    <button class="button p-grid-col5" onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서</button>
+    <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';" style="background-color: #e8f3ff; color: #1b64da">실시간 문의</button>
+  </div>
+</div>
+
+<!-- 주문 정보와 Response Data를 나란히 표시 -->
+<div class="box_section" style="width: 600px; text-align: left; display: flex; justify-content: space-between;">
+  <div style="flex: 1;">
+    <b>Response Data :</b>
+    <div id="response" style="white-space: initial"></div>
+  </div>
+  <div style="margin-left: 20px; flex: 1;">
+    <b>주문 정보 :</b>
+    <div><b>주문번호:</b> <span id="displayOrderId"></span></div>
+    <div><b>결제금액:</b> <span id="displayAmount"></span></div>
+    <div><b>paymentKey:</b> <span id="displayPaymentKey"></span></div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = 'eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3Mzg3MTU1NDIsImV4cCI6MTczODcxNjQ0MiwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.4crDe_gXQiUMBTGuab7zgMqM8c96qwQh9nGqaI_EtjHJzlfdhuoFMYtqoO8kArusDSWNu1Zabg_FQh-jijCkYQ';
+  console.log(accessToken);
+
+  // 서버로 결제 승인 요청을 보냄
+  async function confirm() {
+    var requestData = {
+      paymentKey: urlParams.get("paymentKey"),
+      orderId: urlParams.get("orderId"),
+      amount: urlParams.get("amount"),
+    };
+
+    const response = await fetch("/api/payment/confirm/payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      throw { message: json.message, code: json.code };
+    }
+
+    return json;
+  }
+
+  confirm()
+          .then(function (data) {
+            // 결제 승인 성공 시 Response Data 및 주문 정보 업데이트
+            document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
+          })
+          .catch((err) => {
+            // 결제 승인 실패 시 실패 페이지로 이동
+            window.location.href = `/fail.html?message=${err.message}&code=${err.code}`;
+          });
+
+  // 화면에 주문 정보 표시
+  document.getElementById("orderId").textContent = urlParams.get("orderId");
+  document.getElementById("amount").textContent = urlParams.get("amount") + "원";
+  document.getElementById("paymentKey").textContent = urlParams.get("paymentKey");
+
+  document.getElementById("displayOrderId").textContent = urlParams.get("orderId");
+  document.getElementById("displayAmount").textContent = urlParams.get("amount") + "원";
+  document.getElementById("displayPaymentKey").textContent = urlParams.get("paymentKey");
+</script>
+</body>
+</html>

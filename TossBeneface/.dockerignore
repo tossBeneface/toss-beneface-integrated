@@ -1,0 +1,6 @@
+build/
+*.iml
+*.log
+*.git
+.DS_Store
+!build/libs/

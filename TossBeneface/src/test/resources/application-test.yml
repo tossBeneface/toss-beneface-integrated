@@ -1,0 +1,60 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: dummy-id
+            client-secret: dummy-secret
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+
+cloud:
+  aws:
+    credentials:
+      accessKey: dummy-access
+      secretKey: dummy-secret
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+grpc:
+  client:
+    card-benefit-service:
+      address: 'static://localhost:50051'
+      negotiationType: plaintext
+
+token:
+  secret: test-token-secret-test-token-secret-test-token-secret-test-token-secret
+
+cookie:
+  encryption:
+    secret: test-cookie-encryption-key-2026x
+
+payment:
+  toss:
+    test_client_api_key: dummy-key
+    test_secret_api_key: dummy-key
+    success_url: http://localhost/success
+    fail_url: http://localhost/fail
+
+app:
+  oauth2:
+    redirect-uri: http://localhost:3000/callback

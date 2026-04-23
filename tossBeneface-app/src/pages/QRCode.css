@@ -1,0 +1,111 @@
+/* 전체 컨테이너 */
+.qr-main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    background: #fff;
+    height: 100vh;
+}
+
+/* iPhone 상단 노치 스타일 */
+.phone-status-bar {
+    width: 100%;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 헤더 영역 */
+.header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.back-button {
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.header-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* QR 코드 본문 */
+.qr-code-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.qr-code-wrapper {
+    width: 400px;
+    height: 400px;
+    background: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.qr-code {
+    width: 100%;
+    height: 100%;
+}
+
+.refresh-button {
+    padding: 15px 25px;
+    font-size: 18px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 하단 네비게이션 바 */
+/* .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+} */
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+/* 로딩 애니메이션 */
+.loader {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007bff;
+}

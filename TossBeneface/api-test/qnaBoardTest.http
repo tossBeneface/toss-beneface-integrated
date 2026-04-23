@@ -1,0 +1,104 @@
+### 게시글 목록 조회
+# curl -X GET "http://localhost:8080/api/qnaboard" -H "Authorization: Bearer <your-token>"
+GET http://localhost:8080/api/qnaboard
+Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3MzczMDE3NzksImV4cCI6MTczNzMwMjY3OSwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.mTGP1Roitu4offoBtNDI9-NKYA8fp--2lsrtsM3RsBKtkcSd-2l6QAJ4xTv-TOurFXUdZXZpP5MslVwohh5SOA
+
+
+# curl -X POST http://localhost:8080/api/qnaboard/create
+#-H "Content-Type: multipart/form-data"
+#-F 'requestDto={"memberId":1,"title":"게시글 제목","content":"게시글 내용"};type=application/json'
+#-F 'files=@C:/path/to/your/file1.png'
+#-F 'files=@C:/path/to/your/file2.png'
+### 게시글 작성
+POST http://localhost:8080/api/qnaboard/create
+Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3Mzc1OTM1OTksImV4cCI6MTczNzU5NDQ5OSwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.9NRHm4uKBH1QWdux9Y3kXgI1AZlwhxswiqncsAV2bEEpAdjcbFsV4r5WIm6HGxmGbHfTGDhzALGbwiF58PW89Q
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="requestDto"
+
+{"memberId":1,"title":"게시글 제목","content":"게시글 내용"}
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="barrierfreekiosknews.jpg"
+
+< C:\Users\User\kt_aivle\bigproject\test\barrierfreekiosknews.jpg
+"C:\Users\User\Pictures\Screenshots\스크린샷 2025-01-24 164515.png"
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="file1.png"
+
+< C:\Users\User\bigproject\test\file1.png
+--WebAppBoundary--
+
+### 게시글 단건 조회
+
+# curl -X GET "http://localhost:8080/api/qnaboard/1"
+#-H "Content-Type: application/json"
+#-H "Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3MzcyNjQ0NzUsImV4cCI6MTczNzI2NTM3NSwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.fZhIg3F_eVKRpdyrBF6BeWU1v4WxJIoxt-tCCUXRAtAdSqGb0N6i6EASS91vJk9PjP8Cb_QGljqPdkgNYcUoBA"
+GET http://localhost:8080/api/qnaboard/7
+Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3Mzc1MjMxMjQsImV4cCI6MTczNzUyNDAyNCwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.fxPfICHiINUaKrCeRZYwji82zn9gn3eBqQkJcTwO1jOapyz0sOWqvyGARudgO0X95v47kjJAP0gTYI4ovvUEkg
+Content-Type: application/json
+
+### 게시글 수정
+PUT http://localhost:8080/api/qnaboard/7
+Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3MzczMDE3NzksImV4cCI6MTczNzMwMjY3OSwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.mTGP1Roitu4offoBtNDI9-NKYA8fp--2lsrtsM3RsBKtkcSd-2l6QAJ4xTv-TOurFXUdZXZpP5MslVwohh5SOA
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="requestDto"
+
+{
+  "title": "수정된 제목",
+  "content": "수정된 내용"
+}
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="barrierfreekiosknews.jpg"
+
+< C:\Users\User\bigproject\test\barrierfreekiosknews.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="barrierfreekiosknews.jpg"
+
+< C:\Users\User\bigproject\test\barrierfreekiosknews.jpg
+--WebAppBoundary
+
+### 첨부파일 하나 업로드 API
+# curl -X POST "http://localhost:8080/api/files/update/{fileId}"
+# -H "Content-Type: multipart/form-data"
+# -F "file=@/path/to/your/file"
+POST http://localhost:8080/api/files/update/1
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="file1.png"
+
+< \path\to\your\file1.png
+--WebAppBoundary--
+
+### 첨부파일 대량 업로드 API
+# curl -X POST http://localhost:8080/api/files/upload
+#-H "Authorization: Bearer {your_jwt_token}"
+#-H "Content-Type: multipart/form-data"
+#-F "files=@/path/to/your/file1.png"
+#-F "files=@/path/to/your/file2.png"
+POST http://localhost:8080/api/files/upload
+Authorization: Bearer {your_jwt_token}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="file1.png"
+
+< \path\to\your\file1.png
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="file2.png"
+
+< \path\to\your\file2.png
+--WebAppBoundary--
+
+###
+
+
+###
+GET http://localhost:8080/api/qnaboard/test
+Content-Type: application/json
+###
+
+

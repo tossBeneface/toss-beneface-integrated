@@ -1,0 +1,43 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>QR Code Generator</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h3>QR Code Generator with Access Token</h3>-->
+<!--<div id="qrCodeContainer"></div>-->
+
+<!--<script>-->
+<!--    const accessToken = 'eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3Mzg4MjA4NDksImV4cCI6MTczODgyMTc0OSwibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.7y7ggxgdzCBGs5X2VqmFFMzwgjvy7nfE4T-k7GxSH0L5xQvzqcv_bnp6SrsDFOMZpVqNUjCv30d1ktslOzpQ6Q'; // 여기에 accessToken 값을 넣어주세요-->
+
+<!--    // QR 코드를 5초마다 갱신하는 함수-->
+<!--    function fetchQRCode() {-->
+<!--        fetch('http://localhost:8080/api/qr/generate', {-->
+<!--            method: 'GET',-->
+<!--            headers: {-->
+<!--                'Authorization': 'Bearer ' + accessToken-->
+<!--            }-->
+<!--        })-->
+<!--            .then(response => response.blob())-->
+<!--            .then(blob => {-->
+<!--                // 받은 이미지를 <img> 태그로 표시-->
+<!--                const qrCodeImage = URL.createObjectURL(blob);-->
+<!--                const qrCodeContainer = document.getElementById('qrCodeContainer');-->
+<!--                qrCodeContainer.innerHTML = '';  // 이전 QR 코드 제거-->
+<!--                const img = document.createElement('img');-->
+<!--                img.src = qrCodeImage;-->
+<!--                qrCodeContainer.appendChild(img);-->
+<!--            })-->
+<!--            .catch(error => console.error('Error:', error));-->
+<!--    }-->
+
+<!--    // 페이지 로드 시 QR 코드 첫 번째 생성-->
+<!--    fetchQRCode();-->
+
+<!--    // 5초마다 QR 코드 갱신-->
+<!--    // setInterval(fetchQRCode, 5000);-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->

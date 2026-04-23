@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 스캐너</title>
+    <!-- jsQRScanner 라이브러리 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqrscanner@1.0.0/jsQRScanner.min.js"></script>
+</head>
+<body>
+<h2>QR 코드 스캐너</h2>
+<div id="qr-reader" style="width: 300px; height: 300px;"></div>
+<div id="result"></div>
+
+<script>
+    // QR 코드 스캔 성공 시 실행되는 함수
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log(`스캔된 텍스트: ${decodedText}`);
+        document.getElementById('result').innerText = `스캔된 텍스트: ${decodedText}`;
+    }
+
+    // QR 코드 스캔 오류 시 실행되는 함수
+    function onScanError(errorMessage) {
+        console.error(errorMessage);
+    }
+
+    // QR 스캐너 시작
+    window.onload = function () {
+        const qrScanner = new JsQRScanner("qr-reader");
+
+        // QR 코드 스캔 시작
+        qrScanner.start(
+            { facingMode: "environment" },  // 후면 카메라 사용
+            { fps: 10, qrbox: 250 },        // FPS와 QR 영역 크기 설정
+            onScanSuccess,
+            onScanError
+        ).catch((err) => {
+            console.error(`QR 코드 스캐너 시작 실패: ${err}`);
+        });
+    };
+</script>
+</body>
+</html>

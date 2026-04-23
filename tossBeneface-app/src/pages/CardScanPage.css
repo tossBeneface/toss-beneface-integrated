@@ -1,0 +1,137 @@
+/* CardScanPage.css */
+
+/* 전체 컨테이너 */
+.card-scan-page {
+    position: relative;
+    width: 100%;
+    max-width: 375px; /* 모바일 가로폭 예시 */
+    height: 100vh;
+    margin: 0 auto;
+    background-color: #000; /* 카메라 로딩 전까지 검은 배경 */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 비디오(카메라) 영역 */
+  .video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 375px;
+    height: 100%;
+    background-color: #000;
+    z-index: 0; /* 가장 뒤 */
+  }
+  
+  /* 비디오 스타일 */
+  .camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* 카메라 에러 문구 */
+  .camera-error {
+    color: #f00;
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+  }
+  
+  /* 오버레이 영역 (헤더, 안내, 버튼 등) */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 375px;
+    height: 100%;
+    z-index: 1; /* 비디오 위에 표시 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 헤더/중앙/버튼 그룹 공간 분배 */
+  }
+  
+  /* 헤더 */
+  .scan-header {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 16px;
+    background: transparent; /* 투명 배경 */
+    color: #fff;
+  }
+  
+  .back-button {
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 12px;
+  }
+  
+  .header-title {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* 중앙 안내 컨텐츠 */
+  .center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+  }
+  
+  /* 안내 텍스트 */
+  .scan-guide {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .scan-subguide {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #ccc;
+  }
+  
+  /* 카드 사각형 (촬영 가이드 박스) */
+  .card-bounding-box {
+    margin-top: 12px;
+    width: 280px;
+    height: 180px;
+    border: 2px solid #aaa;
+  }
+  
+  /* 하단 버튼 그룹(스캔 완료/직접입력) */
+  .button-group {
+    display: flex;
+    justify-content: center; /* 버튼들을 가로 가운데 정렬 */
+    gap: 16px;               /* 버튼 사이 간격 */
+    margin-bottom: 24px;     /* 화면 하단 여백 */
+  }
+  
+  /* 버튼 스타일 예시 */
+  .scan-finish-button {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    height: 48px;
+    width: 100px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* 직접 입력하기 버튼도 동일 스타일 사용 가능 */
+  .manual-input-button {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    height: 48px;
+    width: 100px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  

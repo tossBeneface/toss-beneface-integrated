@@ -1,0 +1,420 @@
+/* 1. Reset & Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 2. 전체 컨테이너 */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 3. 헤더 및 내비게이션 */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+header a img {
+  max-width: 150px;
+  height: auto;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  margin-right: 20px;
+}
+
+nav ul li {
+  margin-right: 15px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+nav ul.language {
+  align-items: center;
+}
+
+/* 4. 메인 이미지 및 타이틀 영역 */
+.title-section {
+  text-align: center;
+  margin: 40px 20px;
+}
+
+.title-section h1 {
+  font-size: 2.5rem;
+  line-height: 1.3;
+  color: #222;
+}
+
+.title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.title-container .apple {
+  width: 50px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.title-container .title-text {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* 5. 소개 문구 */
+.top-text {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2rem;
+}
+
+/* 6. Phone 섹션 */
+.phone {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.phone_title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.phone_detail1,
+.phone_detail2 {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.iphone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.iphone img {
+  max-width: 100%;
+  height: auto;
+  margin: 0 10px;
+}
+
+/* 7. REM 섹션 */
+.rem {
+  padding: 40px 20px;
+  background: #f9f9f9;
+}
+
+.rem_title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.rem_main_title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.rem_sub_title {
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.rem_cont1,
+.rem_cont2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 20px;
+}
+
+.rem_cont1_title,
+.rem_cont2_title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.rem_cont1_logo,
+.rem_cont2_logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.rem_cont1_det1,
+.rem_cont2_det1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.rem_cont1_det2,
+.rem_cont2_det2 {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+
+.rem_cont1_det3,
+.rem_cont2_det3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.rem_cont1_pic,
+.rem_cont2_pic {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  margin: 20px auto 0;
+  display: block;
+}
+
+/* 8. Credit 섹션 */
+.credit {
+  padding: 40px 20px;
+}
+
+.credit_title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.credit_title_sub {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.credit_title_main {
+  font-size: 1.2rem;
+}
+
+.credit_score {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* 수정: 얼굴인식 이미지 중앙 정렬 */
+.credit_score_pic {
+  display: block;
+  margin: 0 auto;
+  width: 80%;
+  max-width: 600px;
+  height: auto;
+}
+
+/* 9. 이미지 섹션 */
+.img {
+  padding: 40px 20px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.img .first,
+.img .second {
+  flex: 1 1 45%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.img1,
+.img2 {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.img1_title,
+.img2_title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* 10. End 섹션 */
+.end {
+  padding: 40px 20px;
+  background: #f1f1f1;
+  text-align: center;
+}
+
+.end_img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.end_title_main {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.end_title_sub {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.end_pay,
+.end_sales,
+.end_tosspayment {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.end_pay_title,
+.end_sales_title,
+.end_tosspayment_title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.end_pay_det,
+.end_sales_det,
+.end_tosspayment_det {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.end_pay_button,
+.end_sales_button,
+.end_tosspayment_button {
+  padding: 10px 20px;
+  border: none;
+  background: #007ff2;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.end_pay_button:hover,
+.end_sales_button:hover,
+.end_tosspayment_button:hover {
+  background: #005bb5;
+}
+.floating-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007ff2;
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.floating-bar:hover {
+  background-color: #005bb5;
+}
+/* 11. 반응형 디자인 */
+@media (max-width: 768px) {
+  /* 헤더 및 내비게이션 재배치 */
+  header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  nav {
+    flex-direction: column;
+  }
+  
+  nav ul {
+    margin: 10px 0;
+  }
+  
+  /* 타이틀 영역 폰트 사이즈 조정 */
+  .title-section h1 {
+    font-size: 2rem;
+  }
+  
+  .title-container {
+    flex-direction: column;
+  }
+  
+  .title-container .apple {
+    margin: 0 0 10px 0;
+  }
+  
+  /* 섹션 패딩 축소 */
+  .phone,
+  .rem,
+  .credit,
+  .img,
+  .end {
+    padding: 20px 10px;
+  }
+  
+  /* Phone 섹션 내 이미지 재배치 */
+  .iphone {
+    flex-direction: column;
+  }
+  
+  /* REM 섹션 내 레이아웃 및 텍스트 반응형 조정 */
+  .rem_cont1,
+  .rem_cont2 {
+    flex-direction: column;
+    text-align: center; /* 모바일에서 텍스트 중앙 정렬 */
+  }
+  
+  .rem_cont1_det1,
+  .rem_cont2_det1 {
+    font-size: 1.2rem;
+  }
+  
+  .rem_cont1_det2,
+  .rem_cont2_det2 {
+    font-size: 1rem;
+  }
+  
+  .rem_cont1_det3,
+  .rem_cont2_det3 {
+    font-size: 0.9rem;
+  }
+  
+  /* 이미지 섹션 재배치 */
+  .img {
+    flex-direction: column;
+  }
+  
+  .img .first,
+  .img .second {
+    flex: 1 1 100%;
+  }
+}

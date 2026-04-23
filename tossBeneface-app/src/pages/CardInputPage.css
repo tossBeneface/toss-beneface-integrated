@@ -1,0 +1,137 @@
+/* CardInputPage.css */
+
+.card-input-page {
+    position: relative;
+    width: 100%;
+    max-width: 375px; 
+    height: 100vh;
+    margin: 0 auto;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 헤더 */
+  .header {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    border-bottom: 1px solid #eee;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+  
+  .back-button {
+    font-size: 18px;
+    cursor: pointer;
+    margin-right: 16px;
+  }
+  
+  .header-title {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* 스크롤 영역 */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  
+  .subtitle {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  /* 라벨 */
+  .input-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+  
+  /* 밑줄만 있는 인풋 스타일 */
+  .underline-input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+    font-size: 16px;
+    padding: 8px 0;
+    color: #000;
+    cursor: text; /* 기본적으로 텍스트 입력 느낌 */
+    margin-bottom: 4px;
+  }
+  
+  /* 실제 input[type=text]일 때(카드명) */
+  .underline-input:focus {
+    outline: none;
+    border-bottom: 1px solid #007aff; /* 포커스 시 파란색으로 강조 (예시) */
+  }
+  
+  /* 숫자 필드는 div로 만들었고, 클릭 시 포커스 효과 */
+  .numeric-field {
+    cursor: pointer;
+  }
+  .numeric-field.active {
+    border-bottom: 1px solid #007aff; 
+  }
+  
+  /* 회색 메뉴 (카드번호 아래 작은 사이즈) */
+  .gray-menu-row {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0 16px;
+  }
+  
+  .gray-small-btn {
+    flex: 0 0 auto;
+    background-color: #eee;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  
+  /* 확인 버튼 */
+  .confirm-btn {
+    width: 100%;
+    height: 48px;
+    margin-top: 24px;
+    background-color: #007aff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  /* 커스텀 숫자 키패드 */
+  .custom-keypad {
+    /* 예시: 아래쪽에 고정하고 싶다면 fixed 사용 */
+    position: relative;
+    background-color: #f2f2f2;
+    border-top: 1px solid #ccc;
+  }
+  
+  .key-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 4px 0;
+  }
+  
+  .key-row button {
+    width: 30%;
+    height: 40px;
+    font-size: 16px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  

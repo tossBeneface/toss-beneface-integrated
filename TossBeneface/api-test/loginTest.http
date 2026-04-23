@@ -1,0 +1,27 @@
+
+### 회원가입 요청
+POST http://localhost:8080/api/join
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "memberName": "Test User",
+  "phoneNumber": "010-000-0000",
+  "role": "USER",
+  "gender": "FEMALE"
+}
+
+### 로그인 요청
+POST http://localhost:8080/api/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 회원정보 조회 요청
+GET http://localhost:8080/api/member/info
+Authorization: Bearer eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJzdWIiOiJBQ0NFU1MiLCJpYXQiOjE3Mzc1OTM3NzMsImV4cCI6MTczNzU5NDY3MywibWVtYmVySWQiOjEsInJvbGUiOiJVU0VSIn0.Ieh9UJxUepAicX1J1PwZoyMETrsk-MlenWOM7_2pZEjaHXlhlq0hYx-QIqSzKPj_ucllysqPJ_zsQ-PE-poZbw
+Content-Type: application/json
