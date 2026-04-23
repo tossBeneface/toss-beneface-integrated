@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.app.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.app.grpc";
+option java_outer_classname = "CardBenefitProto";
+
+// 카드 혜택 분석 요청
+message BenefitAnalysisRequest {
+  int64 member_id = 1;
+  string store_name = 2;
+  string category = 3;
+  int32 amount = 4;
+}
+
+// 개별 카드 혜택 정보
+message CardBenefitResult {
+  string card_name = 1;
+  int32 discount_amount = 2;
+  string benefit_type = 3; // 할인, 적립, 캐시백 등
+  string description = 4;
+}
+
+// 카드 혜택 분석 응답
+message BenefitAnalysisResponse {
+  string best_card_name = 1;
+  int32 total_potential_benefit = 2;
+  repeated CardBenefitResult all_options = 3;
+}
+
+// 카드 혜택 분석 서비스 정의
+service CardBenefitService {
+  rpc AnalyzeBestBenefit(BenefitAnalysisRequest) returns (BenefitAnalysisResponse);
+}
