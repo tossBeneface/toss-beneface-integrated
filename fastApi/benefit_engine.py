@@ -20,7 +20,7 @@ except Exception:
     BENEFIT_ENGINE_REQUESTS = None
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class BenefitOption:
     card_name: str
     discount_amount: int
@@ -28,7 +28,7 @@ class BenefitOption:
     description: str
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class BenefitAnalysis:
     best_card_name: str
     total_potential_benefit: int

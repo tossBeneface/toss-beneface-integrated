@@ -84,7 +84,7 @@ _VISIT_COUNT_QUERY = """
       AND SUBSTR(approved_at, 1, 7) = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
 """
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class BenefitCandidateInput:
     card_name: str
     card_company: str
