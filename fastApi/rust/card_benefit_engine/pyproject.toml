@@ -1,0 +1,12 @@
+[build-system]
+requires = ["maturin>=1.13,<2"]
+build-backend = "maturin"
+
+[project]
+name = "card-benefit-rust"
+version = "0.1.0"
+description = "Rust-backed card benefit analysis engine for TossBeneface FastAPI"
+requires-python = ">=3.9"
+
+[tool.maturin]
+bindings = "pyo3"
