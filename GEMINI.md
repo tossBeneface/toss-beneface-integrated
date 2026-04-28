@@ -4,6 +4,24 @@
 
 ---
 
+## 다음 세션 시작 우선 작업
+
+다음 세션에서는 기능 개발보다 먼저 로컬 실행 스모크 검증을 제안할 것.
+
+순서:
+1. `cd TossBeneface && ./gradlew test`
+2. `bash .claude/hooks/grpc-integration-test.sh`
+3. `docker compose -f docker-compose.local.yml up -d`
+4. `http://localhost:8080/actuator/health/readiness` 확인
+5. `http://localhost:8000/health` 확인
+6. `http://localhost/health` 확인
+
+이유:
+- 최근 변경 범위가 보안, JWT 인증, gRPC, 공통 설정, 모니터링, 저장소 구조까지 넓게 퍼져 있음
+- 따라서 새 작업 전에 "로컬에서 실제로 뜨는지"를 먼저 확인해야 함
+
+---
+
 ## 프로젝트 개요
 
 **TossBeneface** — 카페 결제 시 회원의 카드 혜택을 실시간으로 분석·추천하는 서비스.

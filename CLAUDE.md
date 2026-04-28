@@ -1,5 +1,14 @@
 # CLAUDE.md — TossBeneface Project Guide
 
+## First Suggestion Next Session
+- Before feature work, propose a local runtime smoke check first.
+- First action order:
+  1. Run `./gradlew test` in `TossBeneface/`
+  2. Run `.claude/hooks/grpc-integration-test.sh`
+  3. Run `docker compose -f docker-compose.local.yml up -d`
+  4. Verify `http://localhost:8080/actuator/health/readiness`, `http://localhost:8000/health`, and `http://localhost/health`
+- Reason: this repository recently had broad security, gRPC, config, and repo-structure changes, so local run verification must happen before new edits.
+
 ## 🛠 Build & Test Commands
 - **Spring Boot (Java/Kotlin):** `./gradlew build`, `./gradlew test`
 - **FastAPI (Python):** `pytest`, `uvicorn main:app --reload`
