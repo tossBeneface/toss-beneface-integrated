@@ -33,7 +33,7 @@ groups:
 
       # 4. Kafka Consumer Lag 발생
       - alert: KafkaConsumerLag
-        expr: sum(kafka_consumergroup_group_lag) by (group, topic) > 100
+        expr: sum(kafka_consumergroup_lag) by (group, topic) > 100
         for: 5m
         labels:
           severity: warning

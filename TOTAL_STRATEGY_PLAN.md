@@ -130,6 +130,6 @@ async def consume_voice_requests(consumer):
 
 ## 🔗 체크리스트 및 관리
 - [ ] `TOTAL_STRATEGY_PLAN.md` 숙지 및 면접 멘트 연습
-- [ ] gRPC 및 PyO3 기초 실습 진행
-- [ ] Claude Code Hooks 실제 프로젝트 적용
+- [x] gRPC 및 PyO3 기초 실습 진행
+- [x] Claude Code Hooks 실제 프로젝트 적용
 - [ ] 공백기/열정 서사 2문장 버전 녹음 및 피드백
