@@ -1,0 +1,115 @@
+fast:
+  api:
+    host: ${FAST_API_HOST:http://127.0.0.1:8000}
+    voice-process-url: ${FAST_API_VOICE_PROCESS_URL:${fast.api.host}/fastapi/voice-process}
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+  tomcat:
+    max-http-form-post-size: 20971520
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false  # 날짜를 타임스탬프 형식이 아닌 ISO 8601 형식으로 직렬화
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+
+  profiles:
+    default: local
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.security: DEBUG
+    com.app: DEBUG
+    com.app.global.interceptor: DEBUG
+    com.app.global.jwt.service: DEBUG
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+token:
+  access-token-expiration-time: 900000 # 15분 1000(ms) x 60(s) x 15(m)
+  refresh-token-expiration-time: 1209600000 # 2주 1000(ms) x 60 (s) x 60(m) x 24(h) x 14(d)
+
+cloud:
+  aws:
+    region:
+      static: ap-southeast-2 # AWS 리전
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,caches
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    tags:
+      application: toss-beneface
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      fastApiVoiceProcess:
+        baseConfig: default
+        waitDurationInOpenState: 30s
+      tossPayment:
+        baseConfig: default
+        slowCallDurationThreshold: 5s
+        slowCallRateThreshold: 100
+  retry:
+    instances:
+      tossPayment:
+        maxAttempts: 3
+        waitDuration: 500ms
+        retryExceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.io.IOException
