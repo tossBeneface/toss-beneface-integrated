@@ -2,8 +2,10 @@ package com.app.global.resolver.memberInfo
 
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.auth.infra.web.BearerTokenResolver
+import com.app.domain.member.constant.Role
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -28,6 +30,8 @@ class MemberInfoArgumentResolver(
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
+        resolveFromSecurityContext()?.let { return it }
+
         val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
             ?: throw IllegalStateException("HttpServletRequest not found")
         val token = bearerTokenResolver.resolve(request)
@@ -36,5 +40,30 @@ class MemberInfoArgumentResolver(
         val userRole = jwtTokenProvider.extractRole(tokenClaims)
 
         return MemberInfoDto(memberId, "", "", userRole)
+    }
+
+    private fun resolveFromSecurityContext(): MemberInfoDto? {
+        val authentication = SecurityContextHolder.getContext().authentication ?: return null
+        if (!authentication.isAuthenticated) {
+            return null
+        }
+
+        val memberId = when (val principal = authentication.principal) {
+            is Long -> principal
+            is Int -> principal.toLong()
+            is String -> principal.toLongOrNull()
+            else -> null
+        } ?: return null
+
+        val role = authentication.authorities
+            .asSequence()
+            .map { it.authority.removePrefix("ROLE_") }
+            .mapNotNull {
+                runCatching { Role.from(it) }.getOrNull()
+            }
+            .firstOrNull()
+            ?: return null
+
+        return MemberInfoDto(memberId, "", "", role)
     }
 }

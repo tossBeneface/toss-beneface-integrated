@@ -5,6 +5,7 @@ import com.app.auth.infra.web.BearerTokenResolver
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
@@ -18,6 +19,12 @@ class AuthenticationInterceptor(
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         log.info("AuthenticationInterceptor 호출: {}", request.requestURI)
+
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication?.isAuthenticated == true) {
+            log.debug("SecurityContext authentication already present for {}", request.requestURI)
+            return true
+        }
 
         val token = bearerTokenResolver.resolve(request)
         log.info("Authorization token resolved for {}", request.requestURI)

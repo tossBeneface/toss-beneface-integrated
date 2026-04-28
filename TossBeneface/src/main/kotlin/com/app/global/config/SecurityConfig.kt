@@ -2,6 +2,7 @@ package com.app.global.config
 
 import com.app.auth.infra.oauth2.CustomOAuth2UserService
 import com.app.auth.infra.oauth2.OAuth2SuccessHandler
+import com.app.global.filter.JwtAuthenticationFilter
 import com.app.global.filter.LoggingFilter
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
@@ -26,6 +27,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val oAuth2SuccessHandler: OAuth2SuccessHandler,
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val clientRegistrationRepositoryProvider: ObjectProvider<ClientRegistrationRepository>,
     @Value("\${app.oauth2.redirect-uri:http://localhost:3000}") private val redirectUri: String
 ) {
@@ -39,11 +41,11 @@ class SecurityConfig(
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        log.info("SecurityConfig - SecurityFilterChain 설정 시작")
+        log.info("SecurityConfig - SecurityFilterChain 설정 시작 (STATELESS)")
         http
             .cors { cors -> cors.configurationSource(corsConfigurationSource()) }
             .csrf { csrf -> csrf.disable() }
-            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
+            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -56,12 +58,12 @@ class SecurityConfig(
                         "/api/card-benefits/**", "/api/products/**", "/api/member/name/**",
                         "/api/user-data-test/**", "/api/faces/**",
                         "/api/qr/generate", "/api/qr/authenticate",
-                        // Toss 결제 리다이렉트 콜백 (브라우저 리다이렉트, 인증 쿠키 없이 도달 가능)
+                        // Toss 결제 리다이렉트 콜백
                         "/api/payment/", "/api/payment/fail", "/api/payment/callback-auth",
                         // WebSocket / OAuth2
                         "/ws/**", "/oauth2/**", "/login/oauth2/**"
                     ).permitAll()
-                    // 주문·결제·사용자 카드는 인증 필수
+                    // 주문·결제·사용자 카드는 인증 필수 (JwtAuthenticationFilter에서 채워진 SecurityContext 사용)
                     .requestMatchers("/api/orders/**", "/api/payment/**", "/api/user-cards/**").authenticated()
                     .anyRequest().authenticated()
             }
@@ -76,8 +78,8 @@ class SecurityConfig(
                         )
                     }
             }
-            .securityContext { it.requireExplicitSave(false) }
             .addFilterBefore(LoggingFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling { exceptions ->
                 exceptions
                     .authenticationEntryPoint(authenticationEntryPoint())
