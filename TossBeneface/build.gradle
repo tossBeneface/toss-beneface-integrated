@@ -1,0 +1,229 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'io.freefair.lombok' version '8.6'
+	id 'org.jetbrains.kotlin.jvm' version '1.9.23'
+	id 'org.jetbrains.kotlin.kapt' version '1.9.23'
+	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.23'
+	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.23'
+	id 'com.google.protobuf' version '0.9.4'
+}
+
+group = 'com.app'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+	jvmToolchain(17)
+}
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.maven.apache.org/maven2" } // 필요한 경우 추가
+	google() // Android 프로젝트가 아니더라도 종종 유용함
+}
+
+ext {
+	set('springCloudVersion', "2023.0.3")
+	set('resilience4jVersion', "2.2.0")
+	set('grpcVersion', "1.63.0")
+	set('protobufVersion', "3.25.1")
+}
+
+dependencies {
+	// gRPC & Protobuf
+	implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+	implementation "io.grpc:grpc-stub:${grpcVersion}"
+	implementation "io.grpc:grpc-kotlin-stub:1.4.1"
+	implementation "com.google.protobuf:protobuf-kotlin:${protobufVersion}"
+	implementation ("net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE") {
+		exclude group: 'io.grpc', module: 'grpc-netty'
+	}
+	implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+
+	// Kotlin
+	implementation 'org.jetbrains.kotlin:kotlin-reflect'
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
+	// Spring Boot 기본 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+	implementation 'org.apache.commons:commons-text:1.8'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	// Monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// Resilience4j
+	implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
+	implementation "io.github.resilience4j:resilience4j-kotlin:${resilience4jVersion}"
+	implementation "io.github.resilience4j:resilience4j-micrometer:${resilience4jVersion}"
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 처리에 필요
+
+	// QueryDSL Dependencies
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta' // QueryDSL JPA
+	kapt 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+	kapt "jakarta.persistence:jakarta.persistence-api"
+	kapt "jakarta.annotation:jakarta.annotation-api"
+
+	// Jakarta EE
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	implementation "jakarta.persistence:jakarta.persistence-api:3.1.0"
+	implementation "jakarta.annotation:jakarta.annotation-api:2.1.1"
+
+	// Jackson
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2' // 최신 안정 버전 사용
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// ANTLR 버전을 명시적으로 정의
+	implementation 'org.antlr:antlr4-runtime:4.10.1' // QueryDSL이 사용하는 버전에 맞춤
+
+	// Hibernate 최신 버전
+	implementation 'org.hibernate.orm:hibernate-core:6.2.10.Final'
+
+	// AWS SDK
+	implementation 'software.amazon.awssdk:s3:2.20.59' // AWS SDK
+	implementation 'software.amazon.awssdk:core:2.20.59' // AWS Core
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
+	// Tomcat
+	implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.30'
+
+	// H2 Database for testing
+	runtimeOnly 'com.h2database:h2'
+
+	// PostgreSQL
+	runtimeOnly 'org.postgresql:postgresql'
+
+	// Flyway (스키마 버전 관리)
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+
+	// Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	// WebSocket (AI 음성 처리 결과 비동기 푸시)
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+	// Json
+	implementation 'org.json:json:20210307'
+
+	// SLF4J API
+	implementation 'org.slf4j:slf4j-api:2.0.0'
+
+	// 	QR 발급
+	implementation 'com.google.zxing:core:3.5.3'
+	implementation 'com.google.zxing:javase:3.5.3'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation "io.grpc:grpc-testing:${grpcVersion}"
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'io.mockk:mockk:1.13.10'
+	testImplementation "io.github.resilience4j:resilience4j-micrometer:${resilience4jVersion}"
+}
+
+configurations.configureEach {
+	resolutionStrategy.eachDependency { details ->
+		if (details.requested.group == 'io.github.resilience4j') {
+			details.useVersion resilience4jVersion
+			details.because('Keep Resilience4j modules on one version to avoid Spring 6 auto-config class mismatches')
+		}
+		if (
+			details.requested.group == 'io.grpc' &&
+			!['grpc-kotlin-stub', 'protoc-gen-grpc-kotlin'].contains(details.requested.name)
+		) {
+			details.useVersion grpcVersion
+			details.because('Keep all gRPC runtime modules on one version to avoid transport NoSuchMethodError')
+		}
+	}
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:${protobufVersion}"
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+		}
+		grpckt {
+			artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.1:jdk8@jar"
+		}
+	}
+	generateProtoTasks {
+		all().each { task ->
+			task.plugins {
+				grpc {}
+				grpckt {}
+			}
+			task.builtins {
+				kotlin {}
+			}
+		}
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.annotationProcessorPath = configurations.annotationProcessor
+	doFirst {
+		options.compilerArgs = options.compilerArgs.findAll { it != '-proc:none' }
+	}
+}
+
+sourceSets {
+	main.java.srcDirs += [
+		'build/generated/source/kapt/main',
+		'build/generated/source/proto/main/java',
+		'build/generated/source/proto/main/kotlin',
+		'build/generated/source/proto/main/grpc',
+		'build/generated/source/proto/main/grpckt'
+	]
+}
+
+tasks.matching { task ->
+	['kaptGenerateStubsKotlin', 'kaptKotlin', 'compileKotlin', 'compileJava'].contains(task.name)
+}.configureEach {
+	dependsOn tasks.named('generateProto')
+}
+
+kapt {
+	correctErrorTypes = true
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
