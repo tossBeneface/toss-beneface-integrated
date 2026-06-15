@@ -58,6 +58,9 @@ cloud:
     region:
       static: ap-southeast-2 # AWS 리전
 
+payment:
+  billing-key-ttl: PT10M
+
 management:
   endpoints:
     web:

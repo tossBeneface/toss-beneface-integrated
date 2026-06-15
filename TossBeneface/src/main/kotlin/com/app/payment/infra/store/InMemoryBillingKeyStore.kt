@@ -1,11 +1,13 @@
 package com.app.payment.infra.store
 
 import com.app.payment.application.port.BillingKeyStore
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
+@Profile("!prod")
 class InMemoryBillingKeyStore : BillingKeyStore {
 
     private val billingKeys = ConcurrentHashMap<String, String>()
