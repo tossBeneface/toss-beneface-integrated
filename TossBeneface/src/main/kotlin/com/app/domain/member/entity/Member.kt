@@ -4,6 +4,10 @@ import com.app.domain.common.BaseEntity
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
+import com.app.domain.member.model.MemberAuthority
+import com.app.domain.member.model.MemberIdentity
+import com.app.domain.member.model.MemberOnboarding
+import com.app.domain.member.model.MemberProfile
 import com.app.domain.qnaboard.entity.Comment
 import com.app.domain.qnaboard.entity.QnaBoard
 import com.app.global.error.ErrorCode
@@ -78,26 +82,47 @@ class Member(
     )
 
     companion object {
-        fun ofSocial(
-            email: String,
-            memberName: String,
-            socialType: String,
-            socialId: String
+        fun registerLocal(
+            identity: MemberIdentity,
+            profile: MemberProfile,
+            authority: MemberAuthority,
+            onboarding: MemberOnboarding
         ): Member {
             return Member(
-                email = email,
-                password = null,
-                memberName = memberName,
-                phoneNumber = "000-0000-0000",
-                gender = Gender.UNKNOWN,
-                profileImg = null,
-                budget = 10_000_000,
-                role = Role.USER,
-                memberStatus = MemberStatus.ACTIVATE,
-                socialType = socialType,
-                socialId = socialId
+                email = identity.email,
+                password = identity.password,
+                memberName = profile.memberName,
+                phoneNumber = profile.phoneNumber,
+                gender = profile.gender,
+                profileImg = profile.profileImg,
+                budget = onboarding.initialBudget,
+                role = authority.role,
+                memberStatus = onboarding.status,
+                socialType = null,
+                socialId = null
             )
         }
+
+        fun registerSocial(
+            identity: MemberIdentity,
+            profile: MemberProfile,
+            onboarding: MemberOnboarding = MemberOnboarding()
+        ): Member {
+            return Member(
+                email = identity.email,
+                password = null,
+                memberName = profile.memberName,
+                phoneNumber = profile.phoneNumber,
+                gender = profile.gender,
+                profileImg = profile.profileImg,
+                budget = onboarding.initialBudget,
+                role = Role.USER,
+                memberStatus = onboarding.status,
+                socialType = identity.socialType,
+                socialId = identity.socialId
+            )
+        }
+
     }
 
     fun addQnaBoard(qnaBoard: QnaBoard) {
@@ -116,6 +141,12 @@ class Member(
 
     fun updateMemberStatus(memberStatus: MemberStatus) {
         this.memberStatus = memberStatus
+    }
+
+    fun connectSocialIdentity(socialType: String, socialId: String, memberName: String) {
+        this.socialType = socialType
+        this.socialId = socialId
+        this.memberName = memberName
     }
 
     /**

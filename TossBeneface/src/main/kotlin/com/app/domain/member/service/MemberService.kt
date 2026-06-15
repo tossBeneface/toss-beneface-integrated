@@ -25,6 +25,11 @@ class MemberService(
         return memberRepository.findByEmail(email)
     }
 
+    @Transactional(readOnly = true)
+    fun findMemberBySocialIdentity(socialType: String, socialId: String): Optional<Member> {
+        return memberRepository.findBySocialTypeAndSocialId(socialType, socialId)
+    }
+
     private fun validateDuplicateMember(member: Member) {
         val optionalMember = memberRepository.findByEmail(member.email)
         if (optionalMember.isPresent) {
@@ -41,7 +46,7 @@ class MemberService(
         return memberRepository.findByEmail(email).orElse(null)
     }
 
-    fun updateMember(member: Member) {
-        memberRepository.save(member)
+    fun updateMember(member: Member): Member {
+        return memberRepository.save(member)
     }
 }
