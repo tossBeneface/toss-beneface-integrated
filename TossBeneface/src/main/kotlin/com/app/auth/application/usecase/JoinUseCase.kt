@@ -7,7 +7,7 @@ import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
 import com.app.domain.member.entity.Member
 import com.app.domain.member.service.MemberService
-import com.app.global.jwt.service.TokenManager
+import com.app.auth.application.service.TokenManager
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

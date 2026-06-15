@@ -1,6 +1,7 @@
 package com.app.api.logout.controller
 
 import com.app.auth.application.usecase.LogoutUseCase
+import com.app.auth.infra.web.AccessTokenCookieManager
 import com.app.auth.infra.web.BearerTokenResolver
 import com.app.auth.infra.web.RefreshTokenCookieManager
 import io.swagger.v3.oas.annotations.Operation
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class LogoutController(
     private val bearerTokenResolver: BearerTokenResolver,
     private val logoutUseCase: LogoutUseCase,
+    private val accessTokenCookieManager: AccessTokenCookieManager,
     private val refreshTokenCookieManager: RefreshTokenCookieManager
 ) {
 
@@ -27,6 +29,7 @@ class LogoutController(
     fun logout(httpServletRequest: HttpServletRequest, response: HttpServletResponse): ResponseEntity<String> {
         val accessToken = bearerTokenResolver.resolve(httpServletRequest)
         logoutUseCase.logout(accessToken)
+        accessTokenCookieManager.removeAccessTokenCookie(response)
         refreshTokenCookieManager.removeRefreshTokenCookie(response)
         return ResponseEntity.noContent().build()
     }

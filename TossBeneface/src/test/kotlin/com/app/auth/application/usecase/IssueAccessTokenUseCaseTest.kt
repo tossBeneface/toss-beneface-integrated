@@ -1,6 +1,8 @@
 package com.app.auth.application.usecase
 
 import com.app.auth.application.port.RefreshTokenStore
+import com.app.auth.application.dto.JwtTokenDto
+import com.app.auth.application.service.TokenManager
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
@@ -9,8 +11,6 @@ import com.app.domain.member.entity.Member
 import com.app.domain.member.service.MemberService
 import com.app.global.error.ErrorCode
 import com.app.global.error.exception.AuthenticationException
-import com.app.global.jwt.dto.JwtTokenDto
-import com.app.global.jwt.service.TokenManager
 import io.jsonwebtoken.Claims
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows

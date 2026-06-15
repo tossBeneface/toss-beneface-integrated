@@ -1,6 +1,5 @@
-package com.app.global.jwt.dto
+package com.app.auth.application.dto
 
-import com.app.auth.application.dto.TokenResponse
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.util.Date
 

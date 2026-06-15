@@ -1,12 +1,12 @@
 package com.app.auth.application.usecase
 
+import com.app.auth.application.service.TokenManager
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
 import com.app.domain.member.entity.Member
 import com.app.domain.member.service.MemberService
-import com.app.global.jwt.service.TokenManager
 import io.jsonwebtoken.Claims
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import com.app.global.config.web.WebConfig
+import com.app.auth.infra.security.AuthenticatedMemberContextResolver
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.auth.infra.web.BearerTokenResolver
 import com.app.global.interceptor.AdminAuthorizationInterceptor
@@ -53,6 +54,9 @@ class OrderControllerSliceTest {
 
     @MockBean
     private lateinit var jwtTokenProvider: JwtTokenProvider
+
+    @MockBean
+    private lateinit var authenticatedMemberContextResolver: AuthenticatedMemberContextResolver
 
     @MockBean
     private lateinit var authenticationInterceptor: AuthenticationInterceptor

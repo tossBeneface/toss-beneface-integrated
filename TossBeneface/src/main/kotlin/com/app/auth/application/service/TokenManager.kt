@@ -1,9 +1,9 @@
-package com.app.global.jwt.service
+package com.app.auth.application.service
 
+import com.app.auth.application.dto.JwtTokenDto
 import com.app.auth.application.port.RefreshTokenStore
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.domain.member.constant.Role
-import com.app.global.jwt.dto.JwtTokenDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -16,9 +16,6 @@ class TokenManager(
     @Value("\${token.access-token-expiration-time}") val accessTokenExpirationTime: String,
     @Value("\${token.refresh-token-expiration-time}") val refreshTokenExpirationTime: String
 ) {
-    /**
-     * Access/Refresh 토큰 세트를 생성하고, Refresh 토큰을 저장소(Redis 등)에 저장합니다.
-     */
     fun createJwtTokenDto(memberId: Long, role: Role): JwtTokenDto {
         val accessTokenExpireTime = createAccessTokenExpireTime()
         val refreshTokenExpireTime = createRefreshTokenExpireTime()
@@ -34,7 +31,7 @@ class TokenManager(
 
         return JwtTokenDto(
             memberId = memberId.toString(),
-            grantType = "Bearer",
+            grantType = BEARER_GRANT_TYPE,
             accessToken = accessToken,
             accessTokenExpireTime = accessTokenExpireTime,
             refreshToken = refreshToken,
@@ -42,24 +39,15 @@ class TokenManager(
         )
     }
 
-    /**
-     * 기존 Refresh Token을 무효화하고 새로운 토큰 세트를 발급합니다. (Token Rotation)
-     */
     fun rotateToken(oldRefreshToken: String, memberId: Long, role: Role): JwtTokenDto {
         refreshTokenStore.delete(oldRefreshToken)
         return createJwtTokenDto(memberId, role)
     }
 
-    /**
-     * 로그아웃 처리를 위해 저장소의 토큰을 무효화합니다.
-     */
     fun destroyToken(refreshToken: String) {
         refreshTokenStore.delete(refreshToken)
     }
 
-    /**
-     * 회원 ID를 기반으로 모든 기기의 토큰을 무효화합니다. (로그아웃 시 사용)
-     */
     fun destroyTokenByMemberId(memberId: Long) {
         refreshTokenStore.deleteByMemberId(memberId)
     }
@@ -70,5 +58,9 @@ class TokenManager(
 
     fun createRefreshTokenExpireTime(): Date {
         return Date(System.currentTimeMillis() + refreshTokenExpirationTime.toLong())
+    }
+
+    companion object {
+        private const val BEARER_GRANT_TYPE = "Bearer"
     }
 }
