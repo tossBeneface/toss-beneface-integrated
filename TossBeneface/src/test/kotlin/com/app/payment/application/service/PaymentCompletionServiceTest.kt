@@ -1,4 +1,4 @@
-package com.app.api.payment.service
+package com.app.payment.application.service
 
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
@@ -24,14 +24,14 @@ import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.util.*
 
-class PaymentServiceTest {
+class PaymentCompletionServiceTest {
 
     private val paymentStore = mockk<PaymentStore>()
     private val memberRepository = mockk<MemberRepository>()
     private val outboxRepository = mockk<OutboxRepository>(relaxed = true)
     private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
-    private val paymentService = PaymentService(
+    private val paymentCompletionService = PaymentCompletionService(
         paymentStore,
         memberRepository,
         outboxRepository,
@@ -61,7 +61,7 @@ class PaymentServiceTest {
         every { outboxRepository.save(any()) } answers { firstArg() }
 
         // when
-        paymentService.savePayment(confirmedPayment)
+        paymentCompletionService.savePayment(confirmedPayment)
 
         // then
         assertEquals(initialBudget - paymentAmount, member.budget)
@@ -88,7 +88,7 @@ class PaymentServiceTest {
 
         // when & then
         val exception = assertThrows(BusinessException::class.java) {
-            paymentService.savePayment(confirmedPayment)
+            paymentCompletionService.savePayment(confirmedPayment)
         }
         assertEquals(ErrorCode.INSUFFICIENT_BUDGET, exception.errorCode)
     }
@@ -104,7 +104,7 @@ class PaymentServiceTest {
 
         // when & then
         val exception = assertThrows(EntityNotFoundException::class.java) {
-            paymentService.savePayment(confirmedPayment)
+            paymentCompletionService.savePayment(confirmedPayment)
         }
         assertEquals(ErrorCode.MEMBER_NOT_EXIST, exception.errorCode)
     }

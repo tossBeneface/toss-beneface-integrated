@@ -1,9 +1,8 @@
 package com.app.api.payment.controller
 
-import com.app.payment.application.PaymentConfirmType
 import com.app.payment.application.dto.ConfirmPaymentCommand
 import com.app.payment.application.dto.PaymentResult
-import com.app.payment.application.port.TossPaymentGateway
+import com.app.payment.application.usecase.ConfirmWidgetUseCase
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody
 
 @Controller
 class WidgetController(
-    private val tossPaymentGateway: TossPaymentGateway
+    private val confirmWidgetUseCase: ConfirmWidgetUseCase
 ) {
 
     @PostMapping("/confirm")
@@ -20,7 +19,7 @@ class WidgetController(
     fun confirmPayment(
         @Valid @RequestBody command: ConfirmPaymentCommand
     ): ResponseEntity<Map<String, Any>> {
-        val result = tossPaymentGateway.confirmPayment(command, PaymentConfirmType.WIDGET)
+        val result = confirmWidgetUseCase.confirm(command)
 
         return when (result) {
             is PaymentResult.Success -> {
@@ -42,7 +41,6 @@ class WidgetController(
                     )
                 )
             }
-            else -> ResponseEntity.internalServerError().build()
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.app.api.payment.service
+package com.app.payment.infra.toss
 
 import com.app.domain.payment.entity.PaymentStatus
 import com.app.global.config.TossPaymentConfig
@@ -24,15 +24,16 @@ class TossPaymentHttpClient(
 ) : TossPaymentGateway {
 
     private val log = LoggerFactory.getLogger(TossPaymentHttpClient::class.java)
-    private val TOSS_API_BASE_URL = "https://api.tosspayments.com/v1"
+    private val tossApiBaseUrl = "https://api.tosspayments.com/v1"
 
     @CircuitBreaker(name = "tossPayment", fallbackMethod = "fallbackPayment")
     @Retry(name = "tossPayment")
     override fun confirmPayment(command: ConfirmPaymentCommand, confirmType: PaymentConfirmType): PaymentResult {
-        val secretKey = if (confirmType == PaymentConfirmType.PAYMENT)
+        val secretKey = if (confirmType == PaymentConfirmType.PAYMENT) {
             tossPaymentConfig.testSecretKey
-        else
+        } else {
             tossPaymentConfig.testClientApiKey
+        }
 
         val requestData = mapOf(
             "paymentKey" to command.paymentKey,
@@ -40,7 +41,7 @@ class TossPaymentHttpClient(
             "amount" to command.amount
         )
 
-        val response = sendRequest(requestData, secretKey, "$TOSS_API_BASE_URL/payments/confirm")
+        val response = sendRequest(requestData, secretKey, "$tossApiBaseUrl/payments/confirm")
         return if (response.isSuccess()) {
             PaymentResult.Success(toConfirmedPaymentResult(response, command.memberId))
         } else {
@@ -50,18 +51,17 @@ class TossPaymentHttpClient(
         }
     }
 
-    // Circuit Breaker Fallback
     fun fallbackPayment(command: ConfirmPaymentCommand, confirmType: PaymentConfirmType, e: Throwable): PaymentResult {
-        log.error("Toss Payment API 장애 발생 (Fallback): {}", e.message)
+        log.error("Toss Payment API fallback: {}", e.message)
         return PaymentResult.Failure("EXTERNAL_API_ERROR", "결제 서비스가 일시적으로 중단되었습니다. 잠시 후 다시 시도해주세요.")
     }
 
     override fun issueBillingKey(command: IssueBillingKeyCommand): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$TOSS_API_BASE_URL/billing/authorizations/issue")
+        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/authorizations/issue")
     }
 
     override fun confirmBilling(command: ConfirmBillingCommand, billingKey: String): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$TOSS_API_BASE_URL/billing/$billingKey")
+        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/$billingKey")
     }
 
     override fun requestBrandpayAccessToken(command: CallbackAuthCommand): TossApiResponse {
@@ -70,32 +70,33 @@ class TossPaymentHttpClient(
             "customerKey" to command.customerKey,
             "code" to command.code
         )
-        return sendRequest(requestData, tossPaymentConfig.testSecretKey, "$TOSS_API_BASE_URL/brandpay/authorizations/access-token")
+        return sendRequest(requestData, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/authorizations/access-token")
     }
 
     override fun confirmBrandpay(command: ConfirmBrandpayCommand): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$TOSS_API_BASE_URL/brandpay/payments/confirm")
+        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/payments/confirm")
     }
 
     private fun sendRequest(requestData: Any, secretKey: String, urlString: String): TossApiResponse {
         val connection = createConnection(secretKey, urlString)
         return try {
-            connection.outputStream.use { os ->
-                objectMapper.writeValue(os, requestData)
+            connection.outputStream.use { outputStream ->
+                objectMapper.writeValue(outputStream, requestData)
             }
 
             val statusCode = connection.responseCode
-            val responseStream: InputStream? = if (statusCode in 200..299)
+            val responseStream: InputStream? = if (statusCode in 200..299) {
                 connection.inputStream
-            else
+            } else {
                 connection.errorStream
+            }
 
             if (responseStream == null) {
                 return TossApiResponse(statusCode, mapOf("error" to "Empty response"))
             }
 
-            val responseBody: Map<String, Any> = responseStream.use { isr ->
-                objectMapper.readValue(isr, object : TypeReference<Map<String, Any>>() {})
+            val responseBody: Map<String, Any> = responseStream.use { inputStream ->
+                objectMapper.readValue(inputStream, object : TypeReference<Map<String, Any>>() {})
             }
             TossApiResponse(statusCode, responseBody)
         } finally {

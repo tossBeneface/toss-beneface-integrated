@@ -16,10 +16,10 @@ data class JwtTokenDto(
 ) {
     fun toTokenResponse(refreshTokenExpirationTime: Long): TokenResponse {
         return TokenResponse(
-            grantType = this.grantType,
-            accessToken = this.accessToken,
-            accessTokenExpireTime = this.accessTokenExpireTime,
-            refreshToken = this.refreshToken,
+            grantType = requireNotNull(this.grantType) { "grantType is missing" },
+            accessToken = requireNotNull(this.accessToken) { "accessToken is missing" },
+            accessTokenExpireTime = requireNotNull(this.accessTokenExpireTime) { "accessTokenExpireTime is missing" },
+            refreshToken = requireNotNull(this.refreshToken) { "refreshToken is missing" },
             refreshTokenExpirationTime = refreshTokenExpirationTime
         )
     }

@@ -28,12 +28,6 @@ class TokenController(
 
         val tokenResponse = issueAccessTokenUseCase.issue(refreshToken, response)
 
-        return ResponseEntity.ok(
-            AccessTokenResponseDto(
-                grantType = tokenResponse.grantType!!,
-                accessToken = tokenResponse.accessToken!!,
-                accessTokenExpireTime = tokenResponse.accessTokenExpireTime!!
-            )
-        )
+        return ResponseEntity.ok(AccessTokenResponseDto.from(tokenResponse))
     }
 }

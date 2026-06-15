@@ -1,4 +1,4 @@
-package com.app.api.payment.service
+package com.app.payment.application.service
 
 import com.app.AbstractIntegrationTest
 import com.app.domain.member.constant.Gender
@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
 class PaymentIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
-    private lateinit var paymentService: PaymentService
+    private lateinit var paymentCompletionService: PaymentCompletionService
 
     @Autowired
     private lateinit var memberRepository: MemberRepository
@@ -62,7 +62,7 @@ class PaymentIntegrationTest : AbstractIntegrationTest() {
         val confirmedPayment = createConfirmedPayment(savedMember.memberId!!, paymentAmount)
 
         // when
-        paymentService.savePayment(confirmedPayment)
+        paymentCompletionService.savePayment(confirmedPayment)
 
         // then
         val updatedMember = memberRepository.findById(savedMember.memberId!!).get()
@@ -91,7 +91,7 @@ class PaymentIntegrationTest : AbstractIntegrationTest() {
             executorService.submit {
                 try {
                     val confirmedPayment = createConfirmedPayment(savedMember.memberId!!, paymentAmount)
-                    paymentService.savePayment(confirmedPayment)
+                    paymentCompletionService.savePayment(confirmedPayment)
                 } finally {
                     latch.countDown()
                 }

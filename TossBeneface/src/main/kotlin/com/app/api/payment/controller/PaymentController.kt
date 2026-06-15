@@ -102,7 +102,6 @@ class PaymentController(
                     )
                 )
             }
-            else -> ResponseEntity.internalServerError().build()
         }
     }
 
