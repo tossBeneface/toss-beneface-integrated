@@ -1,6 +1,5 @@
 package com.app.payment.infra.toss
 
-import com.app.domain.payment.entity.PaymentStatus
 import com.app.global.config.TossPaymentConfig
 import com.app.payment.application.PaymentConfirmType
 import com.app.payment.application.dto.*
@@ -20,7 +19,8 @@ import java.util.*
 @Component
 class TossPaymentHttpClient(
     private val objectMapper: ObjectMapper,
-    private val tossPaymentConfig: TossPaymentConfig
+    private val tossPaymentConfig: TossPaymentConfig,
+    private val tossPaymentResponseMapper: TossPaymentResponseMapper
 ) : TossPaymentGateway {
 
     private val log = LoggerFactory.getLogger(TossPaymentHttpClient::class.java)
@@ -42,13 +42,7 @@ class TossPaymentHttpClient(
         )
 
         val response = sendRequest(requestData, secretKey, "$tossApiBaseUrl/payments/confirm")
-        return if (response.isSuccess()) {
-            PaymentResult.Success(toConfirmedPaymentResult(response, command.memberId))
-        } else {
-            val errorCode = response.body["code"]?.toString() ?: "UNKNOWN_ERROR"
-            val message = response.body["message"]?.toString() ?: "Toss API Error"
-            PaymentResult.Failure(errorCode, message)
-        }
+        return tossPaymentResponseMapper.toPaymentResult(response, command.memberId)
     }
 
     fun fallbackPayment(command: ConfirmPaymentCommand, confirmType: PaymentConfirmType, e: Throwable): PaymentResult {
@@ -115,25 +109,4 @@ class TossPaymentHttpClient(
         }
     }
 
-    private fun toConfirmedPaymentResult(response: TossApiResponse, memberId: Long?): ConfirmedPaymentResult {
-        val body = response.body
-        return ConfirmedPaymentResult(
-            memberId = memberId ?: (body["memberId"]?.toString()?.toLong() ?: 0L),
-            paymentKey = body["paymentKey"].toString(),
-            orderId = body["orderId"].toString(),
-            orderName = body["orderName"].toString(),
-            method = body["method"].toString(),
-            totalAmount = body["totalAmount"].toString().toInt(),
-            status = PaymentStatus.from(body["status"]?.toString()),
-            requestedAt = body["requestedAt"]?.toString(),
-            approvedAt = body["approvedAt"]?.toString(),
-            receiptUrl = extractReceiptUrl(body)
-        )
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun extractReceiptUrl(body: Map<String, Any>): String? {
-        val receipt = body["receipt"] as? Map<String, Any> ?: return null
-        return receipt["url"]?.toString()
-    }
 }
