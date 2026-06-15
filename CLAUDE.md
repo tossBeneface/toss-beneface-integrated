@@ -6,7 +6,8 @@
   1. Run `./gradlew test` in `TossBeneface/`
   2. Run `.claude/hooks/grpc-integration-test.sh`
   3. Run `docker compose -f docker-compose.local.yml up -d`
-  4. Verify `http://localhost:8080/actuator/health/readiness`, `http://localhost:8000/health`, and `http://localhost/health`
+  4. Verify backend readiness with `docker compose -f docker-compose.local.yml exec -T backend curl -fsS http://localhost:8080/actuator/health/readiness`
+  5. Verify `http://localhost:8000/health` and `http://localhost/health`
 - Reason: this repository recently had broad security, gRPC, config, and repo-structure changes, so local run verification must happen before new edits.
 
 ## 🛠 Build & Test Commands

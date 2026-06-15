@@ -12,13 +12,14 @@
 1. `cd TossBeneface && ./gradlew test`
 2. `bash .claude/hooks/grpc-integration-test.sh`
 3. `docker compose -f docker-compose.local.yml up -d`
-4. `http://localhost:8080/actuator/health/readiness` 확인
+4. `docker compose -f docker-compose.local.yml exec -T backend curl -fsS http://localhost:8080/actuator/health/readiness`로 backend readiness 확인
 5. `http://localhost:8000/health` 확인
 6. `http://localhost/health` 확인
 
 이유:
 - 최근 변경 범위가 보안, JWT 인증, gRPC, 공통 설정, 모니터링, 저장소 구조까지 넓게 퍼져 있음
 - 따라서 새 작업 전에 "로컬에서 실제로 뜨는지"를 먼저 확인해야 함
+- 기본 compose에서는 backend 8080을 호스트에 노출하지 않고 내부 컨테이너 health로 검증함
 
 ---
 

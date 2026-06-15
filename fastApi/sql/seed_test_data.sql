@@ -114,7 +114,7 @@ VALUES (1, 1, 'Toss Beneface Card', 'Toss Bank', '1234-5678-9012-3456', '12/28',
        (1, 2, 'Daily Cashback Card', 'Toss Bank', '9876-5432-1098-7654', '12/28', 100000);
 
 -- 4. Insert Payment History (to test visit_count based progressive benefits)
--- Approved in the current month (April 2026 based on the session date)
+-- Approved in the database current month so this smoke test remains stable over time.
 INSERT INTO payment (member_id, order_name, total_amount, status, approved_at, payment_key, order_id, method)
-VALUES (1, '스타벅스 강남점', 5000, 'DONE', '2026-04-01 10:00:00', 'key1', 'ord1', 'CARD'),
-       (1, '스타벅스 역삼점', 4500, 'DONE', '2026-04-10 14:00:00', 'key2', 'ord2', 'CARD');
+VALUES (1, '스타벅스 강남점', 5000, 'DONE', TO_CHAR(CURRENT_DATE, 'YYYY-MM') || '-01 10:00:00', 'key1', 'ord1', 'CARD'),
+       (1, '스타벅스 역삼점', 4500, 'DONE', TO_CHAR(CURRENT_DATE, 'YYYY-MM') || '-10 14:00:00', 'key2', 'ord2', 'CARD');
