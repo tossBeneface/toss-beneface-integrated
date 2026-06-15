@@ -1,11 +1,14 @@
-# Python 3.10 기반 이미지 사용
-FROM python:3.10
+# syntax=docker/dockerfile:1.7
+FROM python:3.10-slim
 
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# 필수 패키지 설치
-RUN apt-get update && apt-get install -y \
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     cmake \
     curl \
     build-essential \
@@ -21,16 +24,27 @@ RUN apt-get update && apt-get install -y \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Python 패키지 설치
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install python-multipart
-# 애플리케이션 코드 복사
-COPY . .
-RUN pip install --no-cache-dir maturin \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+COPY protos ./protos
+RUN python -m grpc_tools.protoc \
+    -I protos \
+    --python_out . \
+    --grpc_python_out . \
+    protos/card_benefit.proto
+
+COPY rust/card_benefit_engine ./rust/card_benefit_engine
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cargo/registry \
+    --mount=type=cache,target=/root/.cargo/git \
+    --mount=type=cache,target=/app/rust/card_benefit_engine/target \
+    pip install "maturin>=1.13,<2" \
     && python -m maturin build --manifest-path rust/card_benefit_engine/Cargo.toml --release \
-    && pip install --no-cache-dir $(find rust/card_benefit_engine/target/wheels -maxdepth 1 -name '*manylinux*.whl' | head -n 1)
+    && pip install "$(find rust/card_benefit_engine/target/wheels -maxdepth 1 -name '*manylinux*.whl' | head -n 1)"
+
+COPY . .
 
 EXPOSE 8000
-# Uvicorn을 사용하여 FastAPI 애플리케이션 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
