@@ -1,6 +1,5 @@
 package com.app.api.login.dto
 
-import com.app.global.jwt.dto.JwtTokenDto
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
@@ -56,18 +55,5 @@ class LoginDto {
         @field:Schema(description = "refresh token 만료 시간", example = "2024-04-06 23:03:14", required = true)
         @field:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         var refreshTokenExpireTime: Date? = null
-    ) {
-        companion object {
-            fun of(jwtTokenDto: JwtTokenDto): Response {
-                return Response(
-                    memberId = jwtTokenDto.memberId,
-                    grantType = jwtTokenDto.grantType,
-                    accessToken = jwtTokenDto.accessToken,
-                    accessTokenExpireTime = jwtTokenDto.accessTokenExpireTime,
-                    refreshToken = jwtTokenDto.refreshToken,
-                    refreshTokenExpireTime = jwtTokenDto.refreshTokenExpireTime
-                )
-            }
-        }
-    }
+    )
 }

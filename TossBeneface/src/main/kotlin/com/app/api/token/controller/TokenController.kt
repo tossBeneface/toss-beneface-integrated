@@ -26,7 +26,12 @@ class TokenController(
     fun createAccessToken(httpServletRequest: HttpServletRequest, response: HttpServletResponse): ResponseEntity<AccessTokenResponseDto> {
         val refreshToken = refreshTokenCookieManager.extractRefreshToken(httpServletRequest)
 
-        val tokenResponse = issueAccessTokenUseCase.issue(refreshToken, response)
+        val tokenResponse = issueAccessTokenUseCase.issue(refreshToken)
+        refreshTokenCookieManager.addRefreshTokenCookie(
+            response,
+            tokenResponse.refreshToken,
+            tokenResponse.refreshTokenExpirationTime
+        )
 
         return ResponseEntity.ok(AccessTokenResponseDto.from(tokenResponse))
     }
