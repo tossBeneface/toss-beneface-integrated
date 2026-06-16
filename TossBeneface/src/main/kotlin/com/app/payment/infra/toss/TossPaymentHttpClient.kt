@@ -4,21 +4,14 @@ import com.app.global.config.TossPaymentConfig
 import com.app.payment.application.PaymentConfirmType
 import com.app.payment.application.dto.*
 import com.app.payment.application.port.TossPaymentGateway
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import io.github.resilience4j.retry.annotation.Retry
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.util.*
 
 @Component
 class TossPaymentHttpClient(
-    private val objectMapper: ObjectMapper,
+    private val tossHttpClient: TossHttpClient,
     private val tossPaymentConfig: TossPaymentConfig,
     private val tossPaymentResponseMapper: TossPaymentResponseMapper
 ) : TossPaymentGateway {
@@ -41,7 +34,7 @@ class TossPaymentHttpClient(
             "amount" to command.amount
         )
 
-        val response = sendRequest(requestData, secretKey, "$tossApiBaseUrl/payments/confirm")
+        val response = tossHttpClient.postJson(requestData, secretKey, "$tossApiBaseUrl/payments/confirm")
         return tossPaymentResponseMapper.toPaymentResult(response, command.memberId)
     }
 
@@ -51,11 +44,11 @@ class TossPaymentHttpClient(
     }
 
     override fun issueBillingKey(command: IssueBillingKeyCommand): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/authorizations/issue")
+        return tossHttpClient.postJson(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/authorizations/issue")
     }
 
     override fun confirmBilling(command: ConfirmBillingCommand, billingKey: String): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/$billingKey")
+        return tossHttpClient.postJson(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/billing/$billingKey")
     }
 
     override fun requestBrandpayAccessToken(command: CallbackAuthCommand): TossApiResponse {
@@ -64,49 +57,10 @@ class TossPaymentHttpClient(
             "customerKey" to command.customerKey,
             "code" to command.code
         )
-        return sendRequest(requestData, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/authorizations/access-token")
+        return tossHttpClient.postJson(requestData, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/authorizations/access-token")
     }
 
     override fun confirmBrandpay(command: ConfirmBrandpayCommand): TossApiResponse {
-        return sendRequest(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/payments/confirm")
+        return tossHttpClient.postJson(command, tossPaymentConfig.testSecretKey, "$tossApiBaseUrl/brandpay/payments/confirm")
     }
-
-    private fun sendRequest(requestData: Any, secretKey: String, urlString: String): TossApiResponse {
-        val connection = createConnection(secretKey, urlString)
-        return try {
-            connection.outputStream.use { outputStream ->
-                objectMapper.writeValue(outputStream, requestData)
-            }
-
-            val statusCode = connection.responseCode
-            val responseStream: InputStream? = if (statusCode in 200..299) {
-                connection.inputStream
-            } else {
-                connection.errorStream
-            }
-
-            if (responseStream == null) {
-                return TossApiResponse(statusCode, mapOf("error" to "Empty response"))
-            }
-
-            val responseBody: Map<String, Any> = responseStream.use { inputStream ->
-                objectMapper.readValue(inputStream, object : TypeReference<Map<String, Any>>() {})
-            }
-            TossApiResponse(statusCode, responseBody)
-        } finally {
-            connection.disconnect()
-        }
-    }
-
-    private fun createConnection(secretKey: String, urlString: String): HttpURLConnection {
-        val url = URL(urlString)
-        return (url.openConnection() as HttpURLConnection).apply {
-            val auth = Base64.getEncoder().encodeToString("$secretKey:".toByteArray(StandardCharsets.UTF_8))
-            setRequestProperty("Authorization", "Basic $auth")
-            setRequestProperty("Content-Type", "application/json")
-            requestMethod = "POST"
-            doOutput = true
-        }
-    }
-
 }
