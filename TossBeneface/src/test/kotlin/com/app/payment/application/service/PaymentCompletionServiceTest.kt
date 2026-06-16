@@ -30,12 +30,15 @@ class PaymentCompletionServiceTest {
     private val memberRepository = mockk<MemberRepository>()
     private val outboxRepository = mockk<OutboxRepository>(relaxed = true)
     private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    private val paymentFactory = PaymentFactory()
+    private val paymentCompletedEventFactory = PaymentCompletedEventFactory(objectMapper)
 
     private val paymentCompletionService = PaymentCompletionService(
         paymentStore,
         memberRepository,
         outboxRepository,
-        objectMapper
+        paymentFactory,
+        paymentCompletedEventFactory
     )
 
     @Test
