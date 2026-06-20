@@ -8,6 +8,7 @@ import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -53,5 +54,25 @@ class AuthenticatedMemberContextResolverTest {
 
         assertEquals(11L, result.memberId)
         assertEquals(Role.USER, result.role)
+    }
+
+    @Test
+    fun `currentContextOrNull returns context from security context`() {
+        SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken.authenticated(
+            7L,
+            "token",
+            listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
+        )
+
+        val ctx = resolver.currentContextOrNull()
+
+        assertEquals(7L, ctx?.memberId)
+        assertEquals(Role.ADMIN, ctx?.role)
+    }
+
+    @Test
+    fun `currentContextOrNull returns null when no authentication`() {
+        SecurityContextHolder.clearContext()
+        assertNull(resolver.currentContextOrNull())
     }
 }

@@ -22,6 +22,8 @@ class AuthenticatedMemberContextResolver(
         )
     }
 
+    fun currentContextOrNull(): AuthenticatedMemberContext? = resolveFromSecurityContext()
+
     private fun resolveFromSecurityContext(): AuthenticatedMemberContext? {
         val authentication = SecurityContextHolder.getContext().authentication ?: return null
         if (!authentication.isAuthenticated) {
