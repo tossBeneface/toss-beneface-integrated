@@ -1,14 +1,16 @@
-# CLAUDE.md — TossBeneface Project Guide
+<!-- AGENTS.md 와 CLAUDE.md 는 동일하게 유지됩니다. 한쪽을 수정하면 다른 쪽도 같이 수정하세요. -->
+# TossBeneface Project Guide (CLAUDE.md = AGENTS.md)
 
 ## First Suggestion Next Session
-- Before feature work, propose a local runtime smoke check first.
+- Before any new implementation / feature work, propose a local runtime smoke check first.
 - First action order:
-  1. Run `./gradlew test` in `TossBeneface/`
-  2. Run `.claude/hooks/grpc-integration-test.sh`
-  3. Run `docker compose -f docker-compose.local.yml up -d`
-  4. Verify backend readiness with `docker compose -f docker-compose.local.yml exec -T backend curl -fsS http://localhost:8080/actuator/health/readiness`
-  5. Verify `http://localhost:8000/health` and `http://localhost/health`
-- Reason: this repository recently had broad security, gRPC, config, and repo-structure changes, so local run verification must happen before new edits.
+  1. `cd TossBeneface && ./gradlew test`
+  2. `bash .claude/hooks/grpc-integration-test.sh`
+  3. `docker compose -f docker-compose.local.yml up -d`
+  4. Verify backend readiness: `docker compose -f docker-compose.local.yml exec -T backend curl -fsS http://localhost:8080/actuator/health/readiness`
+  5. Verify `http://localhost:8000/health`
+  6. Verify `http://localhost/health`
+- Reason: recent changes touched security, JWT auth flow, gRPC integration, base configuration, monitoring, and repo wiring. Runtime verification comes before additional edits.
 
 ## 🛠 Build & Test Commands
 - **Spring Boot (Java/Kotlin):** `./gradlew build`, `./gradlew test`
@@ -39,3 +41,8 @@
 - **Validation:** After any code change, attempt to run relevant tests (e.g., `./gradlew test --tests *YourClass*`).
 - **Integration Test:** After gRPC changes, run `.claude/hooks/grpc-integration-test.sh` to verify Java-Python communication.
 - **Hooks:** Refer to `.claude/hooks/` for automated pre/post processing scripts.
+
+## Ongoing Notes
+- If the full stack does not come up cleanly, fix the runtime blockers before starting feature work.
+- Keep backend 8080 internal by default. Do not require host `localhost:8080` for smoke checks unless a debug override explicitly publishes it.
+- Treat OAuth, external API flows, and frontend browser smoke as secondary checks after the backend/FastAPI/nginx health endpoints pass.
