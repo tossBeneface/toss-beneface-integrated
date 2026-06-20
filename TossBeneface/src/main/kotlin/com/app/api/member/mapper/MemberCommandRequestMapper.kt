@@ -3,7 +3,6 @@ package com.app.api.member.mapper
 import com.app.api.member.dto.ChangeMemberAuthorityDto
 import com.app.api.member.dto.UpdateMemberInitialStateDto
 import com.app.api.member.dto.UpdateMemberProfileDto
-import com.app.domain.member.constant.Role
 import com.app.member.application.dto.ChangeMemberAuthorityCommand
 import com.app.member.application.dto.UpdateMemberInitialStateCommand
 import com.app.member.application.dto.UpdateMemberProfileCommand
@@ -30,11 +29,10 @@ class MemberCommandRequestMapper {
         )
     }
 
-    fun toCommand(memberId: Long, requesterRole: Role, request: ChangeMemberAuthorityDto.Request): ChangeMemberAuthorityCommand {
+    fun toCommand(memberId: Long, request: ChangeMemberAuthorityDto.Request): ChangeMemberAuthorityCommand {
         return ChangeMemberAuthorityCommand(
             memberId = memberId,
-            role = request.role,
-            requesterRole = requesterRole
+            role = request.role
         )
     }
 }

@@ -13,6 +13,7 @@ import com.app.member.application.usecase.UpdateMemberProfileUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -54,15 +55,16 @@ class MemberCommandController(
 
     @Operation(
         summary = "회원 권한 변경 API",
-        description = "대상 회원의 권한을 변경한다. (관리자 전용)"
+        description = "대상 회원의 권한을 변경한다. (ADMIN 전용 — RBAC)"
     )
+    @PreAuthorize("@authz.can('member', 'manage')")
     @PutMapping("/{memberId}/authority")
     fun changeAuthority(
         @MemberInfo memberInfoDto: MemberInfoDto,
         @PathVariable("memberId") memberId: Long,
         @RequestBody request: ChangeMemberAuthorityDto.Request
     ): ResponseEntity<ChangeMemberAuthorityDto.Response> {
-        val command = memberCommandRequestMapper.toCommand(memberId, memberInfoDto.role, request)
+        val command = memberCommandRequestMapper.toCommand(memberId, request)
         val result = changeMemberAuthorityUseCase.change(command)
         return ResponseEntity.ok(memberCommandResponseMapper.toResponse(result))
     }

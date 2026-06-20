@@ -15,8 +15,7 @@ data class UpdateMemberProfileCommand(
 
 data class ChangeMemberAuthorityCommand(
     val memberId: Long,
-    val role: String,
-    val requesterRole: Role
+    val role: String
 )
 
 data class UpdateMemberInitialStateCommand(
