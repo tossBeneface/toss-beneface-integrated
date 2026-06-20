@@ -971,8 +971,20 @@ git commit -m "chore: classify payment confirm authorization scope"
 
 ### Task 11: 인가 통합 테스트 (메서드 시큐리티 종단)
 
-**Files:**
-- Create: `TossBeneface/src/test/kotlin/com/app/global/security/rbac/AuthorizationIntegrationTest.kt`
+**실행 결과: 이 환경에서 통합 테스트 불가 → 단위 커버리지에 의존(플랜 fallback 적용).**
+
+조사 결과:
+- 풀 `@SpringBootTest`는 `AbstractIntegrationTest`가 `@Testcontainers(disabledWithoutDocker = true)`라 **Docker 없으면 스킵**된다(실제 검증 0). 독립 `@SpringBootTest`도 kafka/grpc/redis 빈 때문에 부팅 실패.
+- `@WebMvcTest` 슬라이스는 이 앱의 `JwtAuthenticationFilter`(잘못된 토큰 시 SecurityContext를 clear) + 인터셉터(`AdminAuthorizationInterceptor` 등, `BearerTokenResolver` 의존) + 커스텀 `@MemberInfo` argument resolver + `WebConfig`가 얽혀, 메서드 시큐리티를 신뢰성 있게 태우기 어렵다(필터를 켜면 JWT 필터가 주입 인증을 지우고, 끄면 403 변환이 사라짐).
+
+결론: 웹 레이어 인가 종단 테스트는 본 환경에서 신뢰성 있게 실행 불가. 인가 로직은 다음 단위 테스트로 결정적으로 커버됨 → 이것을 보증 수단으로 삼는다:
+- `CasbinPolicyTest`(6): 정책(ADMIN manage / USER 거부, own/any).
+- `AccessCheckerTest`(8): 미인증 거부, any 허용, own 소유자 일치/불일치, 권한 없음, resolver 없음, 자원 미존재.
+- `CardOwnerResolverTest`(2), `AuthenticatedMemberContextResolverTest`(컨텍스트 추출).
+
+**미커버 잔여 갭(소규모):** `@PreAuthorize("@authz.can(...)")`의 SpEL 빈 이름 + 메서드 시큐리티 advisor 활성화 "와이어링" 자체. Docker가 있는 CI에서 `AbstractIntegrationTest`를 상속한 MockMvc 인가 테스트로 추후 보강 권장.
+
+아래 원안(참고용, 본 환경 미적용):
 
 > **주의(정직한 한계):** 이 프로젝트는 gRPC/Kafka/Redis 등 외부 의존을 부팅하므로 `@SpringBootTest` 전체 컨텍스트가 로컬에서 뜨지 않을 수 있다. 아래 테스트는 Spring Security test 지원(`SecurityMockMvcRequestPostProcessors.authentication`)으로 JWT 없이 인증 주체를 주입한다. 컨텍스트 부팅이 실패하면, 인가 로직 자체는 Task 5(AccessChecker) 단위 테스트가 이미 보장하므로 이 테스트는 보조 수단이다. 부팅 실패 시 `@SpringBootTest`를 슬라이스로 좁히거나(`classes` 한정), 본 Task를 스킵하고 단위 커버리지에 의존한다 — 실행 결과를 보고할 것.
 
