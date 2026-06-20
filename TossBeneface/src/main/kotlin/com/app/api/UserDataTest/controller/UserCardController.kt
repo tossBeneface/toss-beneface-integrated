@@ -6,6 +6,7 @@ import com.app.api.UserDataTest.service.UserCardService
 import com.app.global.resolver.memberInfo.MemberInfo
 import com.app.global.resolver.memberInfo.MemberInfoDto
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -28,12 +29,10 @@ class UserCardController(
         return ResponseEntity.ok(userCardService.registerCard(dto, memberInfoDto.memberId))
     }
 
+    @PreAuthorize("@authz.can('card', 'delete', #cardId)")
     @DeleteMapping("/{cardId}")
-    fun deleteUserCard(
-        @PathVariable cardId: Long,
-        @MemberInfo memberInfoDto: MemberInfoDto
-    ): ResponseEntity<String> {
-        userCardService.deleteUserCard(cardId, memberInfoDto.memberId)
+    fun deleteUserCard(@PathVariable cardId: Long): ResponseEntity<String> {
+        userCardService.deleteUserCard(cardId)
         return ResponseEntity.ok("카드 삭제 완료")
     }
 }

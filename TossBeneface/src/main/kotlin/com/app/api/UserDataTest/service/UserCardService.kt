@@ -55,13 +55,10 @@ class UserCardService(
     }
 
     @Transactional
-    fun deleteUserCard(cardId: Long, memberId: Long) {
-        val userCardOptional = repository.findCardByIdAndMemberId(cardId, memberId)
-
-        if (userCardOptional.isEmpty) {
-            throw IllegalArgumentException("삭제할 카드가 없거나 권한이 없습니다.")
+    fun deleteUserCard(cardId: Long) {
+        if (!repository.existsById(cardId)) {
+            throw IllegalArgumentException("삭제할 카드가 없습니다.")
         }
-
-        repository.deleteCardByIdAndMemberId(cardId, memberId)
+        repository.deleteById(cardId)
     }
 }

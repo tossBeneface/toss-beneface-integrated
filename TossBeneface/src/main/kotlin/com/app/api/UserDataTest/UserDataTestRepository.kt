@@ -4,11 +4,9 @@ import com.app.domain.cardbenefit.entity.CardBenefit
 import com.app.api.UserDataTest.dto.UserCardListDto
 import com.app.domain.card.entity.Card
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Repository
@@ -44,11 +42,6 @@ interface UserDataTestRepository : JpaRepository<UserDataTestEntity, Long> {
     @Query("SELECT c FROM Card c WHERE c.cardName = :cardName AND c.cardCompany = :cardCompany")
     fun findCardByNameAndCompany(@Param("cardName") cardName: String, @Param("cardCompany") cardCompany: String): Optional<Card>
 
-    @Query("SELECT u FROM UserDataTestEntity u WHERE u.id = :cardId AND u.member.memberId = :memberId")
-    fun findCardByIdAndMemberId(@Param("cardId") cardId: Long, @Param("memberId") memberId: Long): Optional<UserDataTestEntity>
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM UserDataTestEntity u WHERE u.id = :cardId AND u.member.memberId = :memberId")
-    fun deleteCardByIdAndMemberId(@Param("cardId") cardId: Long, @Param("memberId") memberId: Long)
+    @Query("SELECT u.member.memberId FROM UserDataTestEntity u WHERE u.id = :cardId")
+    fun findOwnerMemberIdById(@Param("cardId") cardId: Long): Long?
 }
