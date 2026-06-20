@@ -47,6 +47,7 @@ htmlcov/
 !tsconfig.json
 !composer.json
 !fastapi-env/**/*.json
+!TossBeneface/src/main/resources/rbac/policy.csv
 
 # Project Specific
 TossBeneface/data/*.db

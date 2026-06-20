@@ -1,0 +1,6 @@
+g, ADMIN, OWNER
+g, OWNER, USER
+p, ADMIN, member, manage, any
+p, ADMIN, benefit, manage, any
+p, USER, card, delete, own
+p, ADMIN, card, delete, any
