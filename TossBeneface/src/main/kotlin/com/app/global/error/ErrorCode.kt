@@ -26,6 +26,8 @@ enum class ErrorCode(val httpStatus: HttpStatus, val errorCode: String, val mess
     MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M-002", "해당 회원은 존재하지 않습니다."),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "M-003", "이메일 주소가 잘못되었습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "M-004", "비밀번호가 틀렸습니다."),
+    ONBOARDING_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "M-005", "회원 온보딩이 이미 완료되었습니다."),
+    INVALID_ONBOARDING_STEP(HttpStatus.BAD_REQUEST, "M-006", "회원 온보딩 단계가 올바르지 않습니다."),
 
     // 결제
     INSUFFICIENT_BUDGET(HttpStatus.BAD_REQUEST, "P-001", "잔액이 부족합니다."),

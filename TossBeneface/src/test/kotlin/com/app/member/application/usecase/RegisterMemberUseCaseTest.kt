@@ -22,7 +22,7 @@ class RegisterMemberUseCaseTest {
     private val useCase = RegisterMemberUseCase(memberService)
 
     @Test
-    fun `registers local member from separated identity profile authority and onboarding`() {
+    fun `registers local member from separated identity profile authority and initial state`() {
         val capturedMember = slot<Member>()
         every { memberService.registerMember(capture(capturedMember)) } answers {
             capturedMember.captured.apply { memberId = 42L }

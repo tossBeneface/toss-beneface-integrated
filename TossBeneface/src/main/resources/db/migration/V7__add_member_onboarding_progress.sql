@@ -1,0 +1,4 @@
+ALTER TABLE member
+    ADD COLUMN onboarding_status VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED',
+    ADD COLUMN onboarding_step VARCHAR(20) NOT NULL DEFAULT 'PROFILE',
+    ADD COLUMN onboarding_completed_at TIMESTAMP;

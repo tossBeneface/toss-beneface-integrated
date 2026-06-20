@@ -2,13 +2,13 @@ package com.app.member.application.dto
 
 import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
-import com.app.domain.member.model.MemberOnboarding
+import com.app.domain.member.model.MemberInitialState
 
 data class RegisterMemberCommand(
     val identity: RegisterMemberIdentity,
     val profile: RegisterMemberProfile,
     val authority: RegisterMemberAuthority = RegisterMemberAuthority(),
-    val onboarding: RegisterMemberOnboarding = RegisterMemberOnboarding()
+    val initialState: RegisterMemberInitialState = RegisterMemberInitialState()
 )
 
 data class RegisterMemberIdentity(
@@ -27,9 +27,9 @@ data class RegisterMemberAuthority(
     val role: String = Role.USER.name
 )
 
-data class RegisterMemberOnboarding(
-    val initialBudget: Int = MemberOnboarding.DEFAULT_INITIAL_BUDGET,
-    val status: String = MemberStatus.ACTIVATE.name
+data class RegisterMemberInitialState(
+    val initialBudget: Int = MemberInitialState.DEFAULT_INITIAL_BUDGET,
+    val memberStatus: String = MemberStatus.ACTIVATE.name
 )
 
 data class ResolveSocialMemberCommand(

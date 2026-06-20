@@ -6,7 +6,7 @@ import com.app.domain.member.constant.Role
 import com.app.domain.member.entity.Member
 import com.app.domain.member.model.MemberAuthority
 import com.app.domain.member.model.MemberIdentity
-import com.app.domain.member.model.MemberOnboarding
+import com.app.domain.member.model.MemberInitialState
 import com.app.domain.member.model.MemberProfile
 import com.app.domain.member.service.MemberService
 import com.app.member.application.dto.RegisterMemberCommand
@@ -34,9 +34,9 @@ class RegisterMemberUseCase(
                 profileImg = command.profile.profileImg ?: ""
             ),
             authority = MemberAuthority(Role.from(command.authority.role)),
-            onboarding = MemberOnboarding(
-                initialBudget = command.onboarding.initialBudget,
-                status = MemberStatus.from(command.onboarding.status.uppercase(Locale.ROOT))
+            initialState = MemberInitialState(
+                initialBudget = command.initialState.initialBudget,
+                memberStatus = MemberStatus.from(command.initialState.memberStatus.uppercase(Locale.ROOT))
             )
         )
 
