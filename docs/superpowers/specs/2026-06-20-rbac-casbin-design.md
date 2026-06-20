@@ -186,7 +186,8 @@ class CasbinConfig {
 | member | `GET /info`, `GET /name` | 본인/공개 조회 |
 | card | `POST /user-cards/register`, `GET /user-cards` | @MemberInfo 본인, 쿼리 내재 |
 | order | `POST /orders`, `GET /orders/order-list` | @MemberInfo 본인, 쿼리 내재 |
-| payment | `POST /payment/confirm/*` | @MemberInfo 본인. **단, 결제 확정이 타인 주문/결제를 지정할 수 있는지 구현 시 검증** — 가능하면 `payment:execute own` + `PaymentOwnerResolver` 추가 |
+| payment | `POST /payment/confirm/{widget,payment}` | **(구현 시 검증 완료 — self-scoped)** 멤버를 `@MemberInfo`에서 가져와 `command.withMemberId(memberInfoDto.memberId)`로 인증된 본인 id로 덮어씀. 요청 바디의 memberId를 신뢰하지 않아 타인으로 확정 불가 |
+| payment | `POST /confirm-billing`, `/issue-billing-key`, `/confirm/brandpay` | **(검증 완료)** Toss 측 식별자(customerKey/billingKey) 기반 빌링 흐름. 경로/바디에 남의 저장 자원을 가리키는 id 없음. SecurityConfig에서 이미 `.authenticated()` |
 | payment | `GET /callback-auth`, `/`, `/fail` | Toss 콜백, public 유지 |
 
 ### 단계별 롤아웃 (한 스펙, 3 Phase)
