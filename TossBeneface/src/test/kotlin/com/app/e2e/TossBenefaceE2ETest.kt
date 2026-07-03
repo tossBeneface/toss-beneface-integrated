@@ -3,6 +3,7 @@ package com.app.e2e
 import com.app.AbstractIntegrationTest
 import com.app.api.order.dto.OrderItemRequest
 import com.app.api.order.dto.OrderRequest
+import com.app.auth.infra.security.JwtTokenProvider
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.util.Date
 
 @AutoConfigureMockMvc
 class TossBenefaceE2ETest : AbstractIntegrationTest() {
@@ -35,6 +37,9 @@ class TossBenefaceE2ETest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var outboxRepository: OutboxRepository
+
+    @Autowired
+    private lateinit var jwtTokenProvider: JwtTokenProvider
 
     private lateinit var savedMember: Member
 
@@ -68,9 +73,17 @@ class TossBenefaceE2ETest : AbstractIntegrationTest() {
             totalAmount = 9000
         )
 
+        // /api/orders requires authentication, so mint a valid access token for the member.
+        val accessToken = jwtTokenProvider.createAccessToken(
+            savedMember.memberId!!,
+            savedMember.role,
+            Date(System.currentTimeMillis() + 60_000)
+        )
+
         // when & then
         mockMvc.perform(
             post("/api/orders")
+                .header("Authorization", "Bearer $accessToken")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
