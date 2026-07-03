@@ -20,6 +20,7 @@ enum class ErrorCode(val httpStatus: HttpStatus, val errorCode: String, val mess
     NOT_ACCESS_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "A-007", "해당 토큰은 ACCESS TOKEN이 아닙니다."),
     // 인가(권한) 관련 오류
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, "A-008", "관리자 권한이 없습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "A-009", "접근 권한이 없습니다."),
 
     // 회원
     ALREADY_REGISTERED_MEMBER(HttpStatus.BAD_REQUEST, "M-001", "이미 가입된 회원입니다."),
