@@ -1,6 +1,5 @@
 package com.app.api.member.dto
 
-import com.app.domain.member.entity.Member
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class MemberInfoResponseDto(
@@ -27,19 +26,4 @@ data class MemberInfoResponseDto(
 
     @field:Schema(description = "일반 사용자/관리자 여부", example = "관리자", required = true)
     val role: String
-) {
-    companion object {
-        fun of(member: Member): MemberInfoResponseDto {
-            return MemberInfoResponseDto(
-                memberId = member.memberId.toString(),
-                memberName = member.memberName,
-                email = member.email,
-                phoneNumber = member.phoneNumber,
-                gender = member.gender.toString(),
-                budget = member.budget ?: 0,
-                profileImg = member.profileImg,
-                role = member.role.toString()
-            )
-        }
-    }
-}
+)

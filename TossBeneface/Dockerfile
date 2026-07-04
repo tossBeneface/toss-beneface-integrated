@@ -1,5 +1,5 @@
 # 1. JDK 17 이미지를 기반으로 설정
-FROM eclipse-temurin:17-jdk-jammy as builder
+FROM eclipse-temurin:17-jdk-jammy AS builder
 
 # 2. 작업 디렉토리 설정
 WORKDIR /app

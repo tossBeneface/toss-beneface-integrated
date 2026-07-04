@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.annotation.Transactional
 
 class OrderIntegrationTest : AbstractIntegrationTest() {
 
@@ -57,6 +58,7 @@ class OrderIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional // keep the persistence context open so the lazy OrderPayment.items can be read
     @DisplayName("주문 생성 시 주문, 주문 아이템, Outbox 이벤트가 모두 DB에 저장된다 (Cascade 확인)")
     fun createOrderIntegrationSuccess() {
         // given

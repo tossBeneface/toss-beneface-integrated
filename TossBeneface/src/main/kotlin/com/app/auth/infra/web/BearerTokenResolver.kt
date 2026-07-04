@@ -2,7 +2,6 @@ package com.app.auth.infra.web
 
 import com.app.global.error.ErrorCode
 import com.app.global.error.exception.AuthenticationException
-import com.app.global.jwt.constant.GrantType
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
@@ -20,7 +19,7 @@ class BearerTokenResolver {
         }
 
         val accessTokenCookie = request.cookies
-            ?.firstOrNull { it.name == ACCESS_TOKEN_COOKIE_NAME }
+            ?.firstOrNull { it.name == AuthCookieNames.ACCESS_TOKEN }
             ?.value
 
         if (StringUtils.hasText(accessTokenCookie)) {
@@ -36,7 +35,7 @@ class BearerTokenResolver {
         }
 
         val authorizations = authorizationHeader!!.split(" ".toRegex(), limit = 2).toTypedArray()
-        if (authorizations.size < 2 || GrantType.BEARER.type != authorizations[0] || !StringUtils.hasText(authorizations[1])) {
+        if (authorizations.size < 2 || BEARER_GRANT_TYPE != authorizations[0] || !StringUtils.hasText(authorizations[1])) {
             throw AuthenticationException(ErrorCode.NOT_VALID_BEARER_GRANT_TYPE)
         }
 
@@ -51,6 +50,6 @@ class BearerTokenResolver {
     }
 
     companion object {
-        private const val ACCESS_TOKEN_COOKIE_NAME = "accessToken"
+        private const val BEARER_GRANT_TYPE = "Bearer"
     }
 }

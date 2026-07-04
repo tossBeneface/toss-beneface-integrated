@@ -14,7 +14,7 @@ services:
       fastapi:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -139,6 +139,8 @@ services:
       TOSS_TEST_SECRET_API_KEY: test-secret-key
       TOSS_SUCCESS_URL: http://localhost/api/payment/success
       TOSS_FAIL_URL: http://localhost/api/payment/fail
+    ports:
+      - "8080:8080"  # 로컬 프론트(npm start)가 직접 호출할 수 있도록 호스트에 공개
     expose:
       - "8080"
     depends_on:
@@ -280,7 +282,7 @@ services:
     container_name: tossbeneface-grafana
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT:-3030}:3000"  # 3000은 로컬 프론트 dev 서버가 사용하므로 기본 3030
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false

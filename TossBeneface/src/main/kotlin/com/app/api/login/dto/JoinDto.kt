@@ -1,6 +1,5 @@
 package com.app.api.login.dto
 
-import com.app.global.jwt.dto.JwtTokenDto
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
@@ -71,23 +70,5 @@ class JoinDto {
         @field:Schema(description = "refresh token 만료 시간", example = "2024-04-06 23:03:14", required = true)
         @field:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         val refreshTokenExpireTime: Date?
-    ) {
-        companion object {
-            fun of(jwtTokenDto: JwtTokenDto, request: Request): Response {
-                return Response(
-                    email = request.email,
-                    memberName = request.memberName,
-                    phoneNumber = request.phoneNumber,
-                    gender = request.gender,
-                    role = request.role,
-                    memberId = jwtTokenDto.memberId,
-                    grantType = jwtTokenDto.grantType ?: "Bearer",
-                    accessToken = jwtTokenDto.accessToken,
-                    accessTokenExpireTime = jwtTokenDto.accessTokenExpireTime,
-                    refreshToken = jwtTokenDto.refreshToken,
-                    refreshTokenExpireTime = jwtTokenDto.refreshTokenExpireTime
-                )
-            }
-        }
-    }
+    )
 }

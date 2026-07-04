@@ -3,7 +3,6 @@ package com.app.auth.infra.security
 import com.app.domain.member.constant.Role
 import com.app.global.error.ErrorCode
 import com.app.global.error.exception.AuthenticationException
-import com.app.global.jwt.constant.TokenType
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -24,7 +23,7 @@ class JwtTokenProvider(
     fun createAccessToken(memberId: Long, role: Role, expirationTime: Date): String {
         return Jwts.builder()
             .setHeaderParam("type", "JWT")
-            .setSubject(TokenType.ACCESS.name)
+            .setSubject(JwtTokenType.ACCESS.name)
             .setIssuedAt(Date())
             .setExpiration(expirationTime)
             .claim("memberId", memberId)
@@ -36,7 +35,7 @@ class JwtTokenProvider(
     fun createRefreshToken(memberId: Long, expirationTime: Date): String {
         return Jwts.builder()
             .setHeaderParam("type", "JWT")
-            .setSubject(TokenType.REFRESH.name)
+            .setSubject(JwtTokenType.REFRESH.name)
             .setIssuedAt(Date())
             .setExpiration(expirationTime)
             .claim("memberId", memberId)
@@ -46,7 +45,7 @@ class JwtTokenProvider(
 
     fun parseAccessToken(token: String): Claims {
         val claims = parseClaims(token)
-        if (!TokenType.isAccessToken(claims.subject)) {
+        if (!JwtTokenType.isAccessToken(claims.subject)) {
             throw AuthenticationException(ErrorCode.NOT_ACCESS_TOKEN_TYPE)
         }
         return claims
@@ -54,7 +53,7 @@ class JwtTokenProvider(
 
     fun parseRefreshToken(token: String): Claims {
         val claims = parseClaims(token)
-        if (claims.subject != TokenType.REFRESH.name) {
+        if (claims.subject != JwtTokenType.REFRESH.name) {
             throw AuthenticationException(ErrorCode.NOT_VALID_TOKEN)
         }
         return claims
@@ -91,6 +90,16 @@ class JwtTokenProvider(
             throw e
         } catch (e: Exception) {
             throw AuthenticationException(ErrorCode.NOT_VALID_TOKEN)
+        }
+    }
+}
+
+private enum class JwtTokenType {
+    ACCESS, REFRESH;
+
+    companion object {
+        fun isAccessToken(tokenType: String): Boolean {
+            return ACCESS.name == tokenType
         }
     }
 }

@@ -4,6 +4,7 @@ import com.app.api.cardbenefit.service.CardBenefitService
 import com.app.domain.cardbenefit.entity.CardBenefit
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -12,6 +13,7 @@ class CardBenefitController(
     private val cardBenefitService: CardBenefitService
 ) {
 
+    @PreAuthorize("@authz.can('benefit', 'manage')")
     @PostMapping
     fun saveCardBenefit(@RequestBody cardBenefit: CardBenefit): String {
         return cardBenefitService.saveCardBenefit(cardBenefit)

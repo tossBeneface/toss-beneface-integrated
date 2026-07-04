@@ -4,6 +4,7 @@ import com.app.global.error.exception.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.BindException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -59,6 +60,13 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse.of(e.errorCode, e.message ?: "")
         return ResponseEntity.status(e.errorCode.httpStatus)
             .body(errorResponse)
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    protected fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
+        log.warn("AccessDenied: {}", e.message)
+        val errorResponse = ErrorResponse.of(ErrorCode.ACCESS_DENIED)
+        return ResponseEntity.status(ErrorCode.ACCESS_DENIED.httpStatus).body(errorResponse)
     }
 
     @ExceptionHandler(Exception::class)

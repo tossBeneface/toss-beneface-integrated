@@ -20,12 +20,15 @@ enum class ErrorCode(val httpStatus: HttpStatus, val errorCode: String, val mess
     NOT_ACCESS_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "A-007", "해당 토큰은 ACCESS TOKEN이 아닙니다."),
     // 인가(권한) 관련 오류
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, "A-008", "관리자 권한이 없습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "A-009", "접근 권한이 없습니다."),
 
     // 회원
     ALREADY_REGISTERED_MEMBER(HttpStatus.BAD_REQUEST, "M-001", "이미 가입된 회원입니다."),
     MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M-002", "해당 회원은 존재하지 않습니다."),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "M-003", "이메일 주소가 잘못되었습니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "M-004", "비밀번호가 틀렸습니다."),
+    ONBOARDING_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "M-005", "회원 온보딩이 이미 완료되었습니다."),
+    INVALID_ONBOARDING_STEP(HttpStatus.BAD_REQUEST, "M-006", "회원 온보딩 단계가 올바르지 않습니다."),
 
     // 결제
     INSUFFICIENT_BUDGET(HttpStatus.BAD_REQUEST, "P-001", "잔액이 부족합니다."),

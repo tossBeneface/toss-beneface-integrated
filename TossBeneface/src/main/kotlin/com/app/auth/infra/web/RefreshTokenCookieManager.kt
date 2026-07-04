@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import java.time.Duration
-import java.util.*
+import java.util.Arrays
+import java.util.Date
 
 @Component
 class RefreshTokenCookieManager(
@@ -21,7 +22,7 @@ class RefreshTokenCookieManager(
         val cookies = request.cookies ?: throw AuthenticationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND)
 
         val encryptedRefreshToken = Arrays.stream(cookies)
-            .filter { cookie -> REFRESH_TOKEN_COOKIE_NAME == cookie.name }
+            .filter { cookie -> AuthCookieNames.REFRESH_TOKEN == cookie.name }
             .map { it.value }
             .findFirst()
             .orElseThrow { AuthenticationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND) }
@@ -40,21 +41,30 @@ class RefreshTokenCookieManager(
     }
 
     fun addRefreshTokenCookie(response: HttpServletResponse, refreshToken: String, expirationTime: Long) {
+        addRefreshTokenCookie(response, refreshToken, Duration.ofMillis(expirationTime))
+    }
+
+    fun addRefreshTokenCookie(response: HttpServletResponse, refreshToken: String, expiresAt: Date) {
+        val maxAge = Duration.ofMillis(maxOf(0L, expiresAt.time - System.currentTimeMillis()))
+        addRefreshTokenCookie(response, refreshToken, maxAge)
+    }
+
+    private fun addRefreshTokenCookie(response: HttpServletResponse, refreshToken: String, maxAge: Duration) {
         val encryptedValue = cookieEncryptionUtils.encrypt(refreshToken)
 
-        val refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, encryptedValue)
+        val refreshTokenCookie = ResponseCookie.from(AuthCookieNames.REFRESH_TOKEN, encryptedValue)
             .httpOnly(true)
             .secure(true)
             .sameSite("None")
             .path("/")
-            .maxAge(Duration.ofMillis(expirationTime))
+            .maxAge(maxAge)
             .build()
 
         response.addHeader("Set-Cookie", refreshTokenCookie.toString())
     }
 
     fun removeRefreshTokenCookie(response: HttpServletResponse) {
-        val refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, "")
+        val refreshTokenCookie = ResponseCookie.from(AuthCookieNames.REFRESH_TOKEN, "")
             .httpOnly(true)
             .secure(true)
             .sameSite("None")
@@ -67,9 +77,5 @@ class RefreshTokenCookieManager(
 
     private fun looksLikeJwt(tokenValue: String?): Boolean {
         return tokenValue != null && tokenValue.chars().filter { ch -> ch == '.'.code }.count() == 2L
-    }
-
-    companion object {
-        private const val REFRESH_TOKEN_COOKIE_NAME = "refreshToken"
     }
 }

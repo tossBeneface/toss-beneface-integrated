@@ -1,14 +1,13 @@
 package com.app.auth.application.usecase
 
+import com.app.auth.application.service.TokenManager
 import com.app.auth.infra.security.JwtTokenProvider
 import com.app.domain.member.constant.Gender
 import com.app.domain.member.constant.MemberStatus
 import com.app.domain.member.constant.Role
 import com.app.domain.member.entity.Member
 import com.app.domain.member.service.MemberService
-import com.app.global.jwt.service.TokenManager
 import io.jsonwebtoken.Claims
-import jakarta.servlet.http.HttpServletResponse
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,7 +37,6 @@ class LogoutUseCaseTest {
     @DisplayName("유효한 access token이면 memberId 기반으로 토큰을 무효화한다")
     fun logoutDestroysTokenByMemberId() {
         val accessToken = "valid-access-token"
-        val response = mock(HttpServletResponse::class.java)
         val claims = mock(Claims::class.java)
         val member = Member(
             email = "member@example.com",
@@ -56,8 +54,8 @@ class LogoutUseCaseTest {
         given(jwtTokenProvider.extractMemberId(claims)).willReturn(42L)
         given(memberService.findMemberById(42L)).willReturn(member)
 
-        logoutUseCase.logout(accessToken, response)
+        logoutUseCase.logout(accessToken)
 
-        verify(tokenManager).destroyTokenByMemberId(response, 42L)
+        verify(tokenManager).destroyTokenByMemberId(42L)
     }
 }

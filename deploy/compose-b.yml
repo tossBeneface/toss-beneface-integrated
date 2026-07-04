@@ -1,0 +1,36 @@
+# 인스턴스 B (backend#2) — t3.small
+# 이미지는 A에서 빌드한 것을 docker save/load로 전송받아 사용
+# 사용: PRIVATE_IP_A=<A 사설 IP> docker compose -f deploy/compose-b.yml up -d
+services:
+  backend:
+    image: tossbeneface-backend:latest
+    container_name: beneface-backend-2
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${PRIVATE_IP_A:-172.31.58.237}:5432/toss_beneface
+      SPRING_DATASOURCE_USERNAME: toss_beneface_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-ai0310}
+      SPRING_DATA_REDIS_HOST: ${PRIVATE_IP_A:-172.31.58.237}
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ${PRIVATE_IP_A:-172.31.58.237}:9092
+      SPRING_KAFKA_LISTENER_AUTO_STARTUP: "true"
+      APP_OUTBOX_PUBLISHER_ENABLED: "false"  # 중복 발행 방지: outbox는 A만 발행
+      FAST_API_HOST: http://localhost:8000
+      SPRING_APPLICATION_JSON: '{"grpc":{"client":{"card-benefit-service":{"address":"static://${PRIVATE_IP_A:-172.31.58.237}:50051"}}}}'
+      TOKEN_SECRET: ${TOKEN_SECRET:-ec2-demo-token-secret-for-beneface-2026-keep-this-over-sixty-four-characters-long}
+      AWS_ACCESS_KEY: demo-access-key
+      AWS_SECRET_KEY: demo-secret-key
+      TOSS_TEST_CLIENT_API_KEY: test-client-key
+      TOSS_TEST_SECRET_API_KEY: test-secret-key
+      TOSS_SUCCESS_URL: http://localhost/api/payment/success
+      TOSS_FAIL_URL: http://localhost/api/payment/fail
+      JAVA_TOOL_OPTIONS: -Xmx1024m
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health/readiness"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s

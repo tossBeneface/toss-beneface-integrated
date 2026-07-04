@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.test.context.EmbeddedKafka
 
+@EmbeddedKafka(partitions = 1)
 class OutboxPublisherIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired

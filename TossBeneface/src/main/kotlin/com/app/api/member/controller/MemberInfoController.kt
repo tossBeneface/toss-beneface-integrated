@@ -1,9 +1,10 @@
 package com.app.api.member.controller
 
 import com.app.api.member.dto.MemberInfoResponseDto
-import com.app.api.member.service.MemberInfoService
+import com.app.api.member.mapper.MemberInfoResponseMapper
 import com.app.global.resolver.memberInfo.MemberInfo
 import com.app.global.resolver.memberInfo.MemberInfoDto
+import com.app.member.application.usecase.GetMemberInfoUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -18,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/member")
 class MemberInfoController(
-    private val memberInfoService: MemberInfoService
+    private val getMemberInfoUseCase: GetMemberInfoUseCase,
+    private val memberInfoResponseMapper: MemberInfoResponseMapper
 ) {
 
     @Tag(name = "member")
@@ -29,14 +31,14 @@ class MemberInfoController(
     )
     @GetMapping("/name")
     fun getMemberName(@RequestParam("memberId") memberId: Long): ResponseEntity<String> {
-        val memberName = memberInfoService.getMemberName(memberId)
+        val memberName = getMemberInfoUseCase.getMemberName(memberId)
         return ResponseEntity.ok(memberName)
     }
 
     @GetMapping("/info")
     fun getMemberInfo(@MemberInfo memberInfoDto: MemberInfoDto): ResponseEntity<MemberInfoResponseDto> {
         val memberId = memberInfoDto.memberId
-        val memberInfoResponseDto = memberInfoService.getMemberInfo(memberId)
+        val memberInfoResponseDto = memberInfoResponseMapper.toResponse(getMemberInfoUseCase.getMemberInfo(memberId))
         return ResponseEntity.ok(memberInfoResponseDto)
     }
 }
