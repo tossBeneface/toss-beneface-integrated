@@ -1,0 +1,123 @@
+# 인스턴스 A (infra + backend#1) — c7i-flex.large
+# 사용: docker compose -f deploy/compose-a.yml up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: beneface-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: toss_beneface
+      POSTGRES_USER: toss_beneface_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ai0310}
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toss_beneface_user -d toss_beneface"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: beneface-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: beneface-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      # EXTERNAL은 인스턴스 B가 사설 IP로 접속하는 리스너
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://${PRIVATE_IP_A:-172.31.58.237}:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 72
+      KAFKA_HEAP_OPTS: -Xmx512m -Xms256m
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:29092", "--list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: beneface-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ../kafka/scripts:/scripts
+    entrypoint: ["/bin/bash", "/scripts/init-topics.sh"]
+    restart: "no"
+
+  backend:
+    build:
+      context: ../TossBeneface
+    image: tossbeneface-backend:latest
+    container_name: beneface-backend-1
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/toss_beneface
+      SPRING_DATASOURCE_USERNAME: toss_beneface_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-ai0310}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_LISTENER_AUTO_STARTUP: "true"
+      APP_OUTBOX_PUBLISHER_ENABLED: "true"   # outbox 발행은 A에서만 (중복 발행 방지)
+      FAST_API_HOST: http://localhost:8000
+      TOKEN_SECRET: ${TOKEN_SECRET:-ec2-demo-token-secret-for-beneface-2026-keep-this-over-sixty-four-characters-long}
+      AWS_ACCESS_KEY: demo-access-key
+      AWS_SECRET_KEY: demo-secret-key
+      TOSS_TEST_CLIENT_API_KEY: test-client-key
+      TOSS_TEST_SECRET_API_KEY: test-secret-key
+      TOSS_SUCCESS_URL: http://localhost/api/payment/success
+      TOSS_FAIL_URL: http://localhost/api/payment/fail
+      JAVA_TOOL_OPTIONS: -Xmx1024m
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health/readiness"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+volumes:
+  postgres-data:
+  redis-data:
