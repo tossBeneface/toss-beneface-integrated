@@ -16,7 +16,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: ${PRIVATE_IP_A:-172.31.58.237}:9092
       SPRING_KAFKA_LISTENER_AUTO_STARTUP: "true"
       APP_OUTBOX_PUBLISHER_ENABLED: "false"  # 중복 발행 방지: outbox는 A만 발행
-      FAST_API_HOST: http://localhost:8000
+      FAST_API_HOST: http://${PRIVATE_IP_A:-172.31.58.237}:8000
       SPRING_APPLICATION_JSON: '{"grpc":{"client":{"card-benefit-service":{"address":"static://${PRIVATE_IP_A:-172.31.58.237}:50051"}}}}'
       TOKEN_SECRET: ${TOKEN_SECRET:-ec2-demo-token-secret-for-beneface-2026-keep-this-over-sixty-four-characters-long}
       AWS_ACCESS_KEY: demo-access-key
