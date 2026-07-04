@@ -77,12 +77,14 @@ services:
     entrypoint: ["/bin/bash", "/scripts/init-topics.sh"]
     restart: "no"
 
-  fastapi-grpc:
+  # 풀 FastAPI: HTTP(8000, 얼굴인식/OCR/음성/분석) + gRPC(50051, 혜택 분석) 통합 프로세스
+  # 빠른 반복이 필요하면 grpc.Dockerfile 기반 슬림 이미지로 대체 가능
+  fastapi:
     build:
       context: ../fastApi
-      dockerfile: grpc.Dockerfile
-    image: beneface-fastapi-grpc:latest
-    container_name: beneface-fastapi-grpc
+      dockerfile: dockerfile
+    image: beneface-fastapi:latest
+    container_name: beneface-fastapi
     restart: unless-stopped
     environment:
       DB_HOST: postgres
@@ -90,11 +92,27 @@ services:
       DB_USER: toss_beneface_user
       DB_PASSWORD: ${DB_PASSWORD:-ai0310}
       DB_NAME: toss_beneface
+      DB_HOST_LOCAL: postgres
+      DB_USER_LOCAL: toss_beneface_user
+      DB_PASSWORD_LOCAL: ${DB_PASSWORD:-ai0310}
+      DB_NAME_LOCAL: toss_beneface
+      SPRING_API_URL: http://backend:8080
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
-      - "50051:50051"   # 인스턴스 B의 backend#2가 사설 IP로 접속 (SG 내부 트래픽만 허용됨)
+      - "8000:8000"     # 인스턴스 B의 backend#2가 사설 IP로 접속 (SG 내부 트래픽만 허용됨)
+      - "50051:50051"
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   backend:
     build:
@@ -112,9 +130,9 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_KAFKA_LISTENER_AUTO_STARTUP: "true"
       APP_OUTBOX_PUBLISHER_ENABLED: "true"   # outbox 발행은 A에서만 (중복 발행 방지)
-      FAST_API_HOST: http://localhost:8000
+      FAST_API_HOST: http://fastapi:8000
       # 하이픈 포함 속성이라 relaxed binding 대신 JSON으로 명시
-      SPRING_APPLICATION_JSON: '{"grpc":{"client":{"card-benefit-service":{"address":"static://fastapi-grpc:50051"}}}}'
+      SPRING_APPLICATION_JSON: '{"grpc":{"client":{"card-benefit-service":{"address":"static://fastapi:50051"}}}}'
       TOKEN_SECRET: ${TOKEN_SECRET:-ec2-demo-token-secret-for-beneface-2026-keep-this-over-sixty-four-characters-long}
       AWS_ACCESS_KEY: demo-access-key
       AWS_SECRET_KEY: demo-secret-key
