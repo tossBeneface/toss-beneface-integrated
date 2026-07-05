@@ -148,10 +148,11 @@ nav ul.language {
 .rem_cont1,
 .rem_cont2 {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column; /* 데스크톱에서도 제목→설명→이미지 세로 스택 (row였을 때 텍스트 겹침) */
   align-items: center;
+  text-align: center;
   margin-bottom: 40px;
-  padding: 20px;
+  padding: 40px 20px;
 }
 
 .rem_cont1_title,

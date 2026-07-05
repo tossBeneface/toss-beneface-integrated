@@ -70,7 +70,18 @@ function MapPage() {
         const color = CATEGORY_COLORS[currCategory];
         data.elements.forEach((el) => {
           if (!el.lat || !el.lon) return;
-          const name = (el.tags && (el.tags.name || el.tags["name:ko"])) || "이름 없음";
+          const t = el.tags || {};
+          const name = t.name || t["name:ko"] || "이름 없음";
+          const addr =
+            t["addr:full"] ||
+            [t["addr:city"], t["addr:district"], t["addr:street"], t["addr:housenumber"]]
+              .filter(Boolean)
+              .join(" ");
+          const lines = [`<strong>${name}</strong>`];
+          if (addr) lines.push(`📍 ${addr}`);
+          if (t.phone) lines.push(`📞 ${t.phone}`);
+          if (t.opening_hours) lines.push(`🕐 ${t.opening_hours}`);
+          if (t.brand && t.brand !== name) lines.push(`🏷 ${t.brand}`);
           const marker = L.circleMarker([el.lat, el.lon], {
             radius: 8,
             color: "#ffffff",
@@ -79,7 +90,7 @@ function MapPage() {
             fillOpacity: 0.95,
           })
             .addTo(map)
-            .bindPopup(`<strong>${name}</strong>`);
+            .bindPopup(lines.join("<br>"));
           markers.push(marker);
         });
       } catch (e) {
