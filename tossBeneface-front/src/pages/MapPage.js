@@ -134,8 +134,8 @@ function MapPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col m-0 p-0">
-      {/* 지도 컨테이너 - 남은 공간을 모두 채움 */}
+    <div className="min-h-screen flex flex-col m-0 p-0" style={{ position: "relative" }}>
+      {/* 지도 컨테이너 - 남은 공간을 모두 채움. #category는 이 컨테이너 기준 좌상단 오버레이 */}
       <div id="map" ref={mapRef} className="flex-grow w-full" style={{ minHeight: "70vh" }}></div>
 
       {/* 하단 카테고리 영역 */}
