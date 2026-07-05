@@ -40,80 +40,74 @@
     height: 350px;
 }
 
+/* 지도 카테고리 툴바 — 토스 스타일 필 버튼. z-index는 Leaflet 판(타일 400, 컨트롤 1000)보다 위 */
 #category {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    border-radius: 5px;
-    border: 1px solid #909090;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
-    background: #fff;
-    overflow: hidden;
-    z-index: 1100; /* Leaflet 판(타일 400, 컨트롤 1000)보다 위 — 낮으면 타일에 덮임 */
+    top: 16px;
+    left: 16px;
+    z-index: 1100;
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+    list-style: none;
 }
 
 #category li {
-    float: left;
-    list-style: none;
-    width: 50px;
-    border-right: 1px solid #acacac;
-    padding: 6px 0;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4e5968;
     cursor: pointer;
-}
-
-#category li.on {
-    background: #eee;
+    user-select: none;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
 #category li:hover {
-    background: #ffe6e6;
-    border-left: 1px solid #acacac;
-    margin-left: -1px;
+    background: #f2f4f6;
 }
 
-#category li:last-child {
-    margin-right: 0;
-    border-right: 0;
+#category li .category_ico {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
-#category li span {
-    display: block;
-    margin: 0 auto 3px;
-    width: 27px;
-    height: 28px;
+#category li.on {
+    color: #fff;
 }
 
-#category li .category_bg {
-    background: url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_category.png) no-repeat;
-}
+/* 선택 시 배경색 = 해당 카테고리 마커 색상 */
+#FD6.on { background: #f04452; }
+#MT1.on { background: #f66d24; }
+#PM9.on { background: #12b28c; }
+#OL7.on { background: #8b95a1; }
+#CE7.on { background: #8146f6; }
+#CS2.on { background: #3182f6; }
 
-#category li .bank {
-    background-position: -10px 0;
-}
-
-#category li .mart {
-    background-position: -10px -36px;
-}
-
-#category li .pharmacy {
-    background-position: -10px -72px;
-}
-
-#category li .oil {
-    background-position: -10px -108px;
-}
-
-#category li .cafe {
-    background-position: -10px -144px;
-}
-
-#category li .store {
-    background-position: -10px -180px;
-}
-
-#category li.on .category_bg {
-    background-position-x: -46px;
+@media (max-width: 640px) {
+    #category {
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 2px;
+        padding: 4px;
+    }
+    #category li {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    #category li .category_ico {
+        display: none;
+    }
 }
 
 .placeinfo_wrap {

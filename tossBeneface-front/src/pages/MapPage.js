@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { LuUtensils, LuShoppingCart, LuPill, LuFuel, LuCoffee, LuStore } from "react-icons/lu";
 
 // 카카오맵 SDK 심사 제한으로 Leaflet + OpenStreetMap + Overpass API로 대체 (키 불필요)
 const CATEGORY_FILTERS = {
@@ -138,31 +139,25 @@ function MapPage() {
       {/* 지도 컨테이너 - 남은 공간을 모두 채움. #category는 이 컨테이너 기준 좌상단 오버레이 */}
       <div id="map" ref={mapRef} className="flex-grow w-full" style={{ minHeight: "70vh" }}></div>
 
-      {/* 하단 카테고리 영역 */}
-      <ul id="category" className="flex-none p-4">
+      {/* 카테고리 툴바 (지도 좌상단 오버레이) */}
+      <ul id="category">
         <li id="FD6" data-order="0">
-          <span className="category_bg store"></span>
-          음식점
+          <LuUtensils className="category_ico" aria-hidden />음식점
         </li>
         <li id="MT1" data-order="1">
-          <span className="category_bg mart"></span>
-          마트
+          <LuShoppingCart className="category_ico" aria-hidden />마트
         </li>
         <li id="PM9" data-order="2">
-          <span className="category_bg pharmacy"></span>
-          약국
+          <LuPill className="category_ico" aria-hidden />약국
         </li>
         <li id="OL7" data-order="3">
-          <span className="category_bg oil"></span>
-          주유소
+          <LuFuel className="category_ico" aria-hidden />주유소
         </li>
         <li id="CE7" data-order="4">
-          <span className="category_bg cafe"></span>
-          카페
+          <LuCoffee className="category_ico" aria-hidden />카페
         </li>
         <li id="CS2" data-order="5">
-          <span className="category_bg store"></span>
-          편의점
+          <LuStore className="category_ico" aria-hidden />편의점
         </li>
       </ul>
     </div>
