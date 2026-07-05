@@ -69,7 +69,7 @@ const MainPage = () => {
             <div className="title-container">
               <img
                 className="apple"
-                src="https://logo-pick.com/logo/토스/심볼_pr/토스_심볼_pr.webp?w=200&h=200&fit=crop&auto=format"
+                src="/assets/toss-symbol.svg"
                 alt="토스 심볼"
               />
               <span className="title-text">Toss Beneface</span>
@@ -102,7 +102,7 @@ const MainPage = () => {
         <div className="iphone">
           <img
             className="consum"
-            src="https://toss-beneface-front.s3.ap-northeast-2.amazonaws.com/%EB%AF%BC%EC%84%9D%EB%B6%84%EC%84%9D1.png"
+            src="/assets/app-consume.svg"
             alt="소비"
           />
           
@@ -110,7 +110,7 @@ const MainPage = () => {
         <div className="iphone">
           <img
             className="app_main"
-            src="https://toss-beneface-front.s3.ap-northeast-2.amazonaws.com/%EB%AF%BC%EC%84%9D%EB%B6%84%EC%84%9D2.png"
+            src="/assets/app-main.svg"
             alt="토스 메인"
           />
           
@@ -257,7 +257,7 @@ const MainPage = () => {
         <div className="credit_score">
           <img
             className="credit_score_pic"
-            src="https://www.bizhankook.com/upload/bk/article/202410/28503-69923.jpg"
+            src="/assets/credit-score.svg"
             alt="신용점수"
           />
         </div>

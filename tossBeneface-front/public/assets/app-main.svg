@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 640" width="320" height="640">
+  <rect x="4" y="4" width="312" height="632" rx="40" fill="#191f28"/>
+  <rect x="14" y="14" width="292" height="612" rx="32" fill="#ffffff"/>
+  <rect x="120" y="26" width="80" height="10" rx="5" fill="#e5e8eb"/>
+  <g>
+    <rect x="36" y="66" width="40" height="40" rx="12" fill="#3182f6"/>
+    <circle cx="56" cy="82" r="7" fill="#ffffff"/>
+    <path d="M49 92c0-3 3-5 7-5s7 2 7 5v3h-14v-3z" fill="#ffffff"/>
+    <text x="88" y="92" font-family="Apple SD Gothic Neo, sans-serif" font-size="20" font-weight="800" fill="#191f28">Toss Beneface</text>
+  </g>
+  <rect x="36" y="130" width="248" height="110" rx="16" fill="#3182f6"/>
+  <text x="56" y="166" font-family="Apple SD Gothic Neo, sans-serif" font-size="14" fill="#d4e6ff">내 자산</text>
+  <text x="56" y="200" font-family="Apple SD Gothic Neo, sans-serif" font-size="26" font-weight="800" fill="#ffffff">4,829,300원</text>
+  <g font-family="Apple SD Gothic Neo, sans-serif" font-size="15" fill="#191f28" font-weight="600">
+    <rect x="36" y="260" width="248" height="56" rx="14" fill="#f9fafb"/>
+    <text x="56" y="294">💳  결제하기</text>
+    <rect x="36" y="326" width="248" height="56" rx="14" fill="#f9fafb"/>
+    <text x="56" y="360">😀  얼굴 결제</text>
+    <rect x="36" y="392" width="248" height="56" rx="14" fill="#f9fafb"/>
+    <text x="56" y="426">📊  상권 분석</text>
+    <rect x="36" y="458" width="248" height="56" rx="14" fill="#f9fafb"/>
+    <text x="56" y="492">🎁  내 카드 혜택</text>
+  </g>
+  <rect x="36" y="540" width="248" height="1" fill="#f2f4f6"/>
+  <g fill="#8b95a1">
+    <circle cx="80" cy="576" r="4"/><circle cx="160" cy="576" r="4"/><circle cx="240" cy="576" r="4"/>
+  </g>
+</svg>
